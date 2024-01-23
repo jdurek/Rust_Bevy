@@ -16,4 +16,6 @@ opt-level = 3
 
 [dependencies]
 bevy = "0.12.1"
+bevy_ecs_tilemap = "0.11.0"
 serde = "1.0.195"
+bracket-lib = "~0.8"
