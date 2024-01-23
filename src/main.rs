@@ -1,5 +1,14 @@
 use bevy::prelude::*;
 
+mod map;
+mod components;
+
+mod prelude {
+    pub use bevy::prelude::*;
+    pub use serde::*;
+    pub use crate::map::*;
+    pub use crate::components::*;
+}
 
 
 #[derive(Component)]

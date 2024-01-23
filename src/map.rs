@@ -1,5 +1,6 @@
-use bevy::prelude::*;
-use bevy_ecs_tilemap::prelude::*;
+use crate::prelude::*;
+
+// use bevy_ecs_tilemap::prelude::*;
 
 // Basic management of tilemaps - These follow ECS logic for rendering.
 
@@ -33,17 +34,22 @@ pub enum TraversalType {
     Flight, // Special case for when you can fly upwards (Or downwards if you were already flying)
 }
 
+
+#[derive(Component)]
+pub struct MapTile;
+
 // ECS style - Tile is just for a quick summary of the type, so we can decide which logic we need to check
 // EG, Wall Type is impassible (for now), floor lets you move (But may cause effects), Traversal may have certain conditions (Like a locked door)
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct TileData {
     pub tileType: TileType,
     pub tilePosition: Position,         // From components.rs 
-    pub tileTexture: TileTextureIndex,  // From bevy_ecs_tilemap tiles mod.rs
+    // pub tileTexture: TileTextureIndex,  // From bevy_ecs_tilemap tiles mod.rs
     pub tileVisible: Renderable,        // From components.rs
 }
 
-#[derive(Clone)]
+// TODO - Update the struct so we can serialize/deserialize (Saving and Lodaing maps and things that have changed)
+// #[derive(Clone, Serialize, Deserialize)]
 pub struct Map {
     pub dimX: i32,
     pub dimY: i32,
@@ -51,3 +57,83 @@ pub struct Map {
     pub knownTiles: Vec<bool>,
     // pub visibleTiles: Vec<bool>,
 }
+
+impl Map {
+    pub fn xy_index(&self, x:i32, y:i32) -> usize {
+        (y as usize * self.dimX as usize) + x as usize
+    }
+
+    // Creates a 'default' map that is entirely made up of floors and nothing else (Open Field)
+    pub fn new(width: i32, height:i32) -> Map {
+        Map {
+            dimX: width,
+            dimY: height,
+            knownTiles: vec![false; (width*height) as usize],
+            tileData: vec![TileData {tileType:TileType::Floor, tilePosition:Position{x:0,y:0,z:0}, tileVisible:Renderable{visible:true}}; (width*height) as usize],
+        }
+    }
+}
+
+trait MapArchitect {
+    fn new(&mut self) -> MapBuilder;
+}
+
+#[derive(Resource)]
+pub struct MapBuilder {
+    pub map: Map,
+    pub player_start: Position,
+}
+
+impl MapBuilder {
+    pub fn new() -> Self
+    {
+        // Perform call to generate map - If it's a randomly generated one, use https://github.com/thephet/BevyRoguelike/blob/main/src/map_builder/mod.rs#L39 as ref
+        // Otherwise, just make a basic grid
+        let init_map: Map = Map::new(16,16);
+        let pos: Position = Position {x: 0, y: 0, z: 0};
+        MapBuilder{
+            map: init_map,
+            player_start: pos,
+        }
+    }
+}
+
+// Takes 2 main args - the commands, and the MapBuilder (which contains the map to load)
+pub fn draw_map(mut commands: Commands, mb: Res<MapBuilder>) {
+    for y in 0..mb.map.dimY {
+        for x in 0..mb.map.dimX {
+            let index: usize = ((y * mb.map.dimX) + x) as usize;
+
+            // Using the TileType from TileData, generate the information
+            match mb.map.tileData[index].tileType 
+            {
+                TileType::Floor => {
+                    // commands
+                    // .spawn(None) //SpriteBundle
+                    // .insert(MapTile)
+                    // .insert(Position {x: x, y: y, z: 0})
+                    // //.insert(TileSize::Square(1.0))
+                    // ;
+                }
+                TileType::Wall => {
+                    // commands.spawn((
+                    //     MapTile,
+                    //     Position {x, y, z: 0}, 
+                    //     //TileSize::square(1.0),
+                    //     ..Default::default(),
+                    //     //SpriteBundle
+                    // ))
+                }
+                TileType::Traversal => {
+                    // Adds entity with specific traversal details to the tile so we can fetch it later
+                    // commands.spawn((Position {x,y,z:1}, TraversalData))
+                    ()
+                }
+                _ => {  // Invalid Tile Type provided - Treat it like a wall, but render it as an "Error" so we can see it
+
+                }
+            }
+        }
+    }
+}
+

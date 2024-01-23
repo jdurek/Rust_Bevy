@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 // Most elements will typically have Z of 0, but sometimes something may be hidden in a tile on a different Z axis (Underground, Above)
 // Consider burrowing enemies or avian enemies - they might not be visible until you actually engage with them
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Position {
     pub x: i32,
     pub y: i32,
@@ -13,8 +13,8 @@ pub struct Position {
 }
 
 // This just serves as a method to 'hide' certain things, or tweak how it's displayed - can use a glyph from RLTK as placeholder until later when graphics are implemented
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Renderable {
     pub visible: bool,
-    pub glyph: rltk::FontCharType,
+    // pub glyph: rltk::FontCharType,
 }
