@@ -36,7 +36,18 @@ pub enum TraversalType {
 // ECS style - Tile is just for a quick summary of the type, so we can decide which logic we need to check
 // EG, Wall Type is impassible (for now), floor lets you move (But may cause effects), Traversal may have certain conditions (Like a locked door)
 #[derive(Component)]
-pub struct Tile {
-    tileType: TileType,
+pub struct TileData {
+    pub tileType: TileType,
+    pub tilePosition: Position,         // From components.rs 
+    pub tileTexture: TileTextureIndex,  // From bevy_ecs_tilemap tiles mod.rs
+    pub tileVisible: Renderable,        // From components.rs
 }
 
+#[derive(Clone)]
+pub struct Map {
+    pub dimX: i32,
+    pub dimY: i32,
+    pub tileData: Vec<TileData>,
+    pub knownTiles: Vec<bool>,
+    // pub visibleTiles: Vec<bool>,
+}
