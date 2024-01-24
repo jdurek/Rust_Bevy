@@ -42,10 +42,10 @@ pub struct MapTile;
 // EG, Wall Type is impassible (for now), floor lets you move (But may cause effects), Traversal may have certain conditions (Like a locked door)
 #[derive(Component, Clone)]
 pub struct TileData {
-    pub tileType: TileType,
-    pub tilePosition: Position,         // From components.rs 
+    pub tile_type: TileType,
+    pub tile_position: Position,         // From components.rs 
     // pub tileTexture: TileTextureIndex,  // From bevy_ecs_tilemap tiles mod.rs
-    pub tileVisible: Renderable,        // From components.rs
+    pub tile_visible: Renderable,        // From components.rs
 }
 
 // TODO - Update the struct so we can serialize/deserialize (Saving and Lodaing maps and things that have changed)
@@ -69,7 +69,7 @@ impl Map {
             dimX: width,
             dimY: height,
             knownTiles: vec![false; (width*height) as usize],
-            tileData: vec![TileData {tileType:TileType::Floor, tilePosition:Position{x:0,y:0,z:0}, tileVisible:Renderable{visible:true}}; (width*height) as usize],
+            tileData: vec![TileData {tile_type:TileType::Floor, tile_position:Position{x:0,y:0,z:0}, tile_visible:Renderable{visible:true}}; (width*height) as usize],
         }
     }
 }
@@ -105,24 +105,31 @@ pub fn draw_map(mut commands: Commands, mb: Res<MapBuilder>) {
             let index: usize = ((y * mb.map.dimX) + x) as usize;
 
             // Using the TileType from TileData, generate the information
-            match mb.map.tileData[index].tileType 
+            match mb.map.tileData[index].tile_type 
             {
                 TileType::Floor => {
-                    // commands
-                    // .spawn(None) //SpriteBundle
-                    // .insert(MapTile)
-                    // .insert(Position {x: x, y: y, z: 0})
-                    // //.insert(TileSize::Square(1.0))
-                    // ;
+                    commands
+                    .spawn(SpriteBundle{
+                        sprite: Sprite { color: (Color::GREEN), custom_size: (Some(Vec2::new(1.0, 1.0))), ..Default::default() },
+                        visibility: Visibility::Visible,
+                        ..Default::default()
+                    }) //SpriteBundle
+                    .insert(MapTile)
+                    .insert(Position {x: x, y: y, z: 0})
+                    // .insert(TileSize::Square(1.0))
+                    ;
                 }
                 TileType::Wall => {
-                    // commands.spawn((
-                    //     MapTile,
-                    //     Position {x, y, z: 0}, 
-                    //     //TileSize::square(1.0),
-                    //     ..Default::default(),
-                    //     //SpriteBundle
-                    // ))
+                    commands.spawn((
+                        MapTile,
+                        Position {x, y, z: 0}, 
+                        //TileSize::square(1.0),
+                        SpriteBundle {
+                            sprite: Sprite { color: (Color::BLACK), custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
+                            visibility: Visibility::Visible,
+                            ..Default::default()
+                        }
+                    ));
                 }
                 TileType::Traversal => {
                     // Adds entity with specific traversal details to the tile so we can fetch it later

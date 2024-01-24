@@ -19,7 +19,18 @@ struct Name(String);
 
 fn main() {
     App::new()
-    .add_plugins((DefaultPlugins, HelloPlugin))
+    .add_plugins(DefaultPlugins
+        .set(WindowPlugin{
+            primary_window: Some(Window{ 
+                title: "Rusty Odyssey".to_string(),
+                resolution: (1024 as f32, 720 as f32).into(),  // TODO - change this later for custom resolution (Or update it on the fly)
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+    // .add_plugins()  // Add method for drawing the map on startup here    
+    )
+
     .run();
 }
 
