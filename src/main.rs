@@ -17,6 +17,12 @@ struct Person;
 #[derive(Component)]
 struct Name(String);
 
+fn setup(mut commands: Commands) {
+    // Use this spot for loading in basic resources like sprites for the menu or common areas
+
+
+}
+
 fn main() {
     App::new()
     .add_plugins(DefaultPlugins
@@ -29,8 +35,11 @@ fn main() {
             ..Default::default()
         })
     // .add_plugins()  // Add method for drawing the map on startup here    
+    
     )
-
+    .add_systems(Startup, map::build_map)
+    // TODO - Figure out the schedule stuff so I can split the build_map and draw_map properly - Update is not the correct system, but it doesn't panic.
+    .add_systems(Update, map::draw_map)
     .run();
 }
 

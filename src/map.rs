@@ -142,5 +142,11 @@ pub fn draw_map(mut commands: Commands, mb: Res<MapBuilder>) {
             }
         }
     }
+    // print!("Map has been drawn (allegedly)");
 }
 
+pub fn build_map(mut commands: Commands) {
+    // Can expland with a query to adjust which map is being loaded - for now, just call our function
+    let mut mb = MapBuilder::new();
+    commands.insert_resource(mb);
+}
