@@ -2,6 +2,9 @@ use crate::prelude::*;
 
 // use bevy_ecs_tilemap::prelude::*;
 
+// TODO - tweak this so that it's tied to the user's selected zoom - EG, is the minimap in the corner, or fully opened? 
+const ZOOM_LEVEL: f32 = 15.0;
+
 // Basic management of tilemaps - These follow ECS logic for rendering.
 
 #[derive(PartialEq, Copy, Clone)]
@@ -110,11 +113,11 @@ pub fn draw_map(mut commands: Commands, mb: Res<MapBuilder>) {
                 TileType::Floor => {
                     commands
                     .spawn(SpriteBundle{
-                        sprite: Sprite { color: (Color::GREEN), custom_size: (Some(Vec2::new(1.0, 1.0))), ..Default::default() },
+                        sprite: Sprite { color: if((y%2)+2)%2 == 0{Color::GREEN}else{Color::CRIMSON}, custom_size: (Some(Vec2::new(1.0, 1.0))), ..Default::default() },
                         visibility: Visibility::Visible,
                         transform: Transform {
-                            translation: Vec2::new(x as f32, y as f32).extend(0.0),
-                            scale: Vec3::new(1.0, 1.0, 1.0),
+                            translation: Vec2::new(x as f32 * ZOOM_LEVEL, y as f32 * ZOOM_LEVEL).extend(0.0),
+                            scale: Vec3::new(ZOOM_LEVEL, ZOOM_LEVEL, ZOOM_LEVEL),
                             ..default()
                         },
                         ..Default::default()
