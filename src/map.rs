@@ -46,7 +46,7 @@ pub struct MapTile;
 #[derive(Component, Clone)]
 pub struct TileData {
     pub tile_type: TileType,
-    pub tile_position: Position,         // From components.rs 
+    // pub tile_position: Position,         // From components.rs - may not be needed if we can just assume the vec element is ordered
     // pub tileTexture: TileTextureIndex,  // From bevy_ecs_tilemap tiles mod.rs
     pub tile_visible: Renderable,        // From components.rs
 }
@@ -72,10 +72,11 @@ impl Map {
             dim_x: width,
             dim_y: height,
             known_tiles: vec![false; (width*height) as usize],
-            tile_data: vec![TileData {tile_type:TileType::Floor, tile_position:Position{x:0,y:0,z:0}, tile_visible:Renderable{visible:true}}; (width*height) as usize],
+            tile_data: vec![TileData {tile_type:TileType::Floor, tile_visible:Renderable{visible:true}}; (width*height) as usize],
         }
     }
 }
+
 
 trait MapArchitect {
     fn new(&mut self) -> MapBuilder;
@@ -99,6 +100,12 @@ impl MapBuilder {
             player_start: pos,
         }
     }
+    // Creates a MapBuilder using a stored map (Filepath)
+    // pub fn load_map() -> Self
+    // {
+    //     //Serialize from memory
+        
+    // }
 }
 
 // Takes 2 main args - the commands, and the MapBuilder (which contains the map to load)
