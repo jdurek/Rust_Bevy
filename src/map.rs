@@ -89,7 +89,7 @@ impl MapBuilder {
     {
         // Perform call to generate map - If it's a randomly generated one, use https://github.com/thephet/BevyRoguelike/blob/main/src/map_builder/mod.rs#L39 as ref
         // Otherwise, just make a basic grid
-        let init_map: Map = Map::new(16,16);
+        let init_map: Map = Map::new(32,32);
         let pos: Position = Position {x: 0, y: 0, z: 0};
         MapBuilder{
             map: init_map,
@@ -112,6 +112,11 @@ pub fn draw_map(mut commands: Commands, mb: Res<MapBuilder>) {
                     .spawn(SpriteBundle{
                         sprite: Sprite { color: (Color::GREEN), custom_size: (Some(Vec2::new(1.0, 1.0))), ..Default::default() },
                         visibility: Visibility::Visible,
+                        transform: Transform {
+                            translation: Vec2::new(x as f32, y as f32).extend(0.0),
+                            scale: Vec3::new(1.0, 1.0, 1.0),
+                            ..default()
+                        },
                         ..Default::default()
                     }) //SpriteBundle
                     .insert(MapTile)
@@ -147,6 +152,6 @@ pub fn draw_map(mut commands: Commands, mb: Res<MapBuilder>) {
 
 pub fn build_map(mut commands: Commands) {
     // Can expland with a query to adjust which map is being loaded - for now, just call our function
-    let mut mb = MapBuilder::new();
+    let mb = MapBuilder::new();
     commands.insert_resource(mb);
 }

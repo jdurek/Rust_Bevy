@@ -19,8 +19,8 @@ struct Name(String);
 
 fn setup(mut commands: Commands) {
     // Use this spot for loading in basic resources like sprites for the menu or common areas
-
-
+    commands.spawn(Camera2dBundle::default());
+    map::build_map(commands);
 }
 
 fn main() {
@@ -37,7 +37,7 @@ fn main() {
     // .add_plugins()  // Add method for drawing the map on startup here    
     
     )
-    .add_systems(Startup, map::build_map)
+    .add_systems(Startup, setup)
     // TODO - Figure out the schedule stuff so I can split the build_map and draw_map properly - Update is not the correct system, but it doesn't panic.
     .add_systems(Update, map::draw_map)
     .run();
