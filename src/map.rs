@@ -1,3 +1,5 @@
+use bracket_lib::terminal::SpriteSheet;
+
 use crate::prelude::*;
 
 // use bevy_ecs_tilemap::prelude::*;
@@ -157,6 +159,20 @@ pub fn draw_map(mut commands: Commands, mb: Res<MapBuilder>) {
             }
         }
     }
+    // Draw the player here for testing to see if this works
+    // TODO: Revamp from Text2dBundle to a different asset (Such as an arrow icon)
+    commands.spawn((
+        Text2dBundle{
+            text: Text::from_section("@", TextStyle{color: Color::BLACK, font_size:16.0, ..Default::default()}),
+            transform: Transform {  // When player moves, we update these values - so pull from player's position param for X/Y as needed. 
+                translation: Vec2::new(5 as f32 * ZOOM_LEVEL, 5 as f32 * ZOOM_LEVEL).extend(0.0),
+                ..default()
+            },
+            ..Default::default()
+        },
+
+    ));
+    // Draw player entity onto the map
     // print!("Map has been drawn (allegedly)");
 }
 
