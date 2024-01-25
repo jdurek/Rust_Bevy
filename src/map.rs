@@ -51,25 +51,25 @@ pub struct TileData {
 // TODO - Update the struct so we can serialize/deserialize (Saving and Lodaing maps and things that have changed)
 // #[derive(Clone, Serialize, Deserialize)]
 pub struct Map {
-    pub dimX: i32,
-    pub dimY: i32,
-    pub tileData: Vec<TileData>,
-    pub knownTiles: Vec<bool>,
+    pub dim_x: i32,
+    pub dim_y: i32,
+    pub tile_data: Vec<TileData>,
+    pub known_tiles: Vec<bool>,
     // pub visibleTiles: Vec<bool>,
 }
 
 impl Map {
     pub fn xy_index(&self, x:i32, y:i32) -> usize {
-        (y as usize * self.dimX as usize) + x as usize
+        (y as usize * self.dim_x as usize) + x as usize
     }
 
     // Creates a 'default' map that is entirely made up of floors and nothing else (Open Field)
     pub fn new(width: i32, height:i32) -> Map {
         Map {
-            dimX: width,
-            dimY: height,
-            knownTiles: vec![false; (width*height) as usize],
-            tileData: vec![TileData {tile_type:TileType::Floor, tile_position:Position{x:0,y:0,z:0}, tile_visible:Renderable{visible:true}}; (width*height) as usize],
+            dim_x: width,
+            dim_y: height,
+            known_tiles: vec![false; (width*height) as usize],
+            tile_data: vec![TileData {tile_type:TileType::Floor, tile_position:Position{x:0,y:0,z:0}, tile_visible:Renderable{visible:true}}; (width*height) as usize],
         }
     }
 }
@@ -100,12 +100,12 @@ impl MapBuilder {
 
 // Takes 2 main args - the commands, and the MapBuilder (which contains the map to load)
 pub fn draw_map(mut commands: Commands, mb: Res<MapBuilder>) {
-    for y in 0..mb.map.dimY {
-        for x in 0..mb.map.dimX {
-            let index: usize = ((y * mb.map.dimX) + x) as usize;
+    for y in 0..mb.map.dim_y {
+        for x in 0..mb.map.dim_x {
+            let index: usize = mb.map.xy_index(x, y);
 
             // Using the TileType from TileData, generate the information
-            match mb.map.tileData[index].tile_type 
+            match mb.map.tile_data[index].tile_type 
             {
                 TileType::Floor => {
                     commands
