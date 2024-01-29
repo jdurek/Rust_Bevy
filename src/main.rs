@@ -34,7 +34,7 @@ fn main() {
             }),
             ..Default::default()
         })
-    // .add_plugins()  // Add method for drawing the map on startup here    
+    // .add_plugins()  // Begin the main loading systems (Intro splashes to help cover the load times)
     
     )
     .add_systems(Startup, setup)

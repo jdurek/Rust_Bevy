@@ -160,6 +160,7 @@ pub fn draw_map(mut commands: Commands, mb: Res<MapBuilder>) {
         }
     }
     // Draw the player here for testing to see if this works
+    // TODO: Move this into a separate function in a rendering pipeline (Map is a 'minimap', but also serves as our coordinate system)
     // TODO: Revamp from Text2dBundle to a different asset (Such as an arrow icon)
     commands.spawn((
         Text2dBundle{
