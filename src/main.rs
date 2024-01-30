@@ -2,14 +2,17 @@ use bevy::prelude::*;
 
 mod map;
 mod components;
+mod resources;
 
 mod prelude {
     pub use bevy::prelude::*;
     pub use serde::*;
     pub use crate::map::*;
     pub use crate::components::*;
+    pub use crate::resources::*;
 }
 
+use prelude::*;
 
 #[derive(Component)]
 struct Person;
@@ -33,11 +36,15 @@ fn main() {
                 ..Default::default()
             }),
             ..Default::default()
-        })
-    // .add_plugins()  // Begin the main loading systems (Intro splashes to help cover the load times)
-    
-    )
+        }))
+    .add_state::<GameplayState>()
+    .add_state::<TurnState>()
+    .add_state::<MenuState>()
+
+    // States are loaded in - Begin loading in our main logic
     .add_systems(Startup, setup)
+
+    
     // TODO - Figure out the schedule stuff so I can split the build_map and draw_map properly - Update is not the correct system, but it doesn't panic.
     .add_systems(Update, map::draw_map)
     .run();

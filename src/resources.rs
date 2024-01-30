@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 /* Defines global resources, particularly game states */
 
-
+// Enter dungeon, main loop (Wait for input, menu | player turn | dialogue | enter combat | exit dungeon, enemy turn | enter combat, other turn, back to waiting on input)
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum TurnState {
     #[default]
@@ -29,4 +29,15 @@ pub enum MenuState {
     Questbook, // May rename this since it won't just be quests but other things? 
     Options,
     SaveLoad,
+}
+
+// A quick way for us to 'disable' exploration-based ticks if it's not tied to the grid movement, or just prevent inputs from registering
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+pub enum GameplayState {
+    #[default]
+    MainMenu,
+    Menu,
+    Exploration,
+    Dialogue,
+    Cutscene,
 }
