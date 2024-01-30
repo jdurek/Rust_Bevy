@@ -3,6 +3,7 @@ use bevy::prelude::*;
 mod map;
 mod components;
 mod resources;
+mod map_pipeline;
 
 mod prelude {
     pub use bevy::prelude::*;
@@ -10,6 +11,7 @@ mod prelude {
     pub use crate::map::*;
     pub use crate::components::*;
     pub use crate::resources::*;
+    pub use crate::map_pipeline::*;
 }
 
 use prelude::*;

@@ -9,7 +9,7 @@ const ZOOM_LEVEL: f32 = 15.0;
 
 // Basic management of tilemaps - These follow ECS logic for rendering.
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone, Serialize, Deserialize)]
 pub enum TileType {
     Wall,
     Floor,
@@ -45,7 +45,7 @@ pub struct MapTile;
 
 // ECS style - Tile is just for a quick summary of the type, so we can decide which logic we need to check
 // EG, Wall Type is impassible (for now), floor lets you move (But may cause effects), Traversal may have certain conditions (Like a locked door)
-#[derive(Component, Clone)]
+#[derive(Component, Clone, Serialize, Deserialize)]
 pub struct TileData {
     pub tile_type: TileType,
     // pub tile_position: Position,         // From components.rs - may not be needed if we can just assume the vec element is ordered
@@ -54,7 +54,7 @@ pub struct TileData {
 }
 
 // TODO - Update the struct so we can serialize/deserialize (Saving and Lodaing maps and things that have changed)
-// #[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Map {
     pub dim_x: i32,
     pub dim_y: i32,
