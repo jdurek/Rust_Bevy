@@ -23,7 +23,7 @@ struct Person;
 struct Name(String);
 
 fn setup(mut commands: Commands) {
-    // Use this spot for loading in basic resources like sprites for the menu or common areas
+    // Use this spot for loading in basic resources and initializations - including creating the first camera so we can display something
     commands.spawn(Camera2dBundle::default());
     map::build_map(commands);
 }

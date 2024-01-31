@@ -41,4 +41,49 @@ impl MapBuilderA {
         let map_data:MapBuilderA =  serde_json::from_str(&data).unwrap();
         map_data
     }
+
+    pub fn save_map(self, to_file: String) {
+        // Attempts to save the struct to a JSON structure, then write to a file
+        // For now, it'll just dump a JSON string
+        let j = serde_json::to_string(&self);
+        let jstr = match j {
+            Ok(output) => output,
+            Err(error) => panic!("Unable to save map - {:?}", error),
+        };
+        println!("{}", jstr);
+
+        
+    }
+}
+
+
+pub fn placeholder(mut commands:Commands){}
+
+// TODO - add build_map function here (Move from the map.rs file)
+
+pub struct MapPlugin;
+impl Plugin for MapPlugin
+{
+    fn build(&self, app: &mut App)
+    {
+        app
+        // When loading in from the menu
+        // .add_systems(OnEnter(GameplayState::Exploration), build_map)
+        // .add_systems(OnExit(GameplayState::Exploration), hide_map)
+
+        // Handle entering a dungeon - fetch the map information and begin loading everything
+        .add_systems(OnEnter(TurnState::EnterDungeon), placeholder) // Begin rendering next map, move prior one into cache if needed
+        .add_systems(OnExit(TurnState::EnterDungeon),placeholder)   // Return control to the player (Loading and other things has completed)
+
+        // Handle leaving a dungeon (reset map, cache it, etc...)
+        .add_systems(OnEnter(TurnState::ExitDungeon), placeholder)  // Handle whatever EnterDungeon usually wouldn't - reset some things on the map like enemies?
+        .add_systems(OnExit(TurnState::ExitDungeon), placeholder)
+
+        // Handle movement of entitites on the map on different phases - 
+        .add_systems(OnExit(TurnState::PlayerTurn), placeholder)    // Either move player icon or shift the map depending on map size
+        .add_systems(OnExit(TurnState::EnemyTurn), placeholder)     // Move enemy icons if they've moved
+        .add_systems(OnExit(TurnState::OtherTurn), placeholder)             // Handle other map changes if something's been triggered (EG, water levels, rockslides, etc...)
+        
+        ;
+    }
 }
