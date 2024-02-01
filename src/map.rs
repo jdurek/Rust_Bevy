@@ -50,7 +50,7 @@ pub struct TileData {
     pub tile_type: TileType,
     // pub tile_position: Position,         // From components.rs - may not be needed if we can just assume the vec element is ordered
     // pub tileTexture: TileTextureIndex,  // From bevy_ecs_tilemap tiles mod.rs
-    pub tile_visible: Renderable,        // From components.rs
+    // pub tile_visible: Renderable,        // From components.rs
 }
 
 // TODO - Update the struct so we can serialize/deserialize (Saving and Lodaing maps and things that have changed)
@@ -74,7 +74,8 @@ impl Map {
             dim_x: width,
             dim_y: height,
             known_tiles: vec![false; (width*height) as usize],
-            tile_data: vec![TileData {tile_type:TileType::Floor, tile_visible:Renderable{visible:true}}; (width*height) as usize],
+            tile_data: vec![TileData {tile_type:TileType::Floor,}; (width*height) as usize],
+            // tile_data: vec![TileData {tile_type:TileType::Floor, tile_visible:Renderable{visible:true}}; (width*height) as usize],
         }
     }
 }

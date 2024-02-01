@@ -46,6 +46,7 @@ fn main() {
     // States are loaded in - Begin loading in our main logic
     .add_systems(Startup, setup)
 
+    .add_plugins(MapPlugin)
     
     // TODO - Figure out the schedule stuff so I can split the build_map and draw_map properly - Update is not the correct system, but it doesn't panic.
     .add_systems(Update, map::draw_map)

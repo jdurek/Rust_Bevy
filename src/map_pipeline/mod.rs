@@ -2,6 +2,7 @@ use crate::prelude::*;
 use crate::prelude::Map;
 use std::fs;
 
+use bevy::ecs::system::adapter::new;
 use serde_json::*;
 
 
@@ -59,6 +60,20 @@ impl MapBuilderA {
 
 pub fn placeholder(mut commands:Commands){}
 
+// Debug function for testing the save/load functionality before a test suite is integrated
+pub fn save_load_test(mut commands:Commands){
+    println!("Performing a Save-Load test, dumping JSONs...");
+    // Create a mapBuilder, and call save_map on the default map struct
+    let mb = MapBuilderA::new();
+    mb.save_map("dummy_path".to_string());
+    
+    // Create a mapBuilder, edit the map itself, and call save_map
+    let mut mb = MapBuilderA::new();
+    mb.map = Map::new(16,16);
+    mb.save_map("DummyPath".to_string());
+
+}
+
 // TODO - add build_map function here (Move from the map.rs file)
 
 pub struct MapPlugin;
@@ -67,9 +82,11 @@ impl Plugin for MapPlugin
     fn build(&self, app: &mut App)
     {
         app
+        // Test functions
+        .add_systems(Startup, save_load_test)
         // When loading in from the menu
-        // .add_systems(OnEnter(GameplayState::Exploration), build_map)
-        // .add_systems(OnExit(GameplayState::Exploration), hide_map)
+        .add_systems(OnEnter(GameplayState::Exploration), placeholder)
+        .add_systems(OnExit(GameplayState::Exploration), placeholder)
 
         // Handle entering a dungeon - fetch the map information and begin loading everything
         .add_systems(OnEnter(TurnState::EnterDungeon), placeholder) // Begin rendering next map, move prior one into cache if needed
