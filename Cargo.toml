@@ -15,8 +15,15 @@ opt-level = 1
 opt-level = 3
 
 [dependencies]
-bevy = "0.12.1"
-bevy_ecs_tilemap = "0.11.0"
+bevy = "0.12"
 serde = "1.0.195"
-serde_json = "1.0.79"
+serde_json = "1.0"
 bracket-lib = "~0.8"
+bevy_ecs_tilemap = { git = "https://github.com/StarArawn/bevy_ecs_tilemap" }
+bevy_ecs_ldtk = { git = "https://github.com/Trouv/bevy_ecs_ldtk" }
+
+# Have to manually patch in bevy_ecs_tilemap's repo for version 0.12 of Bevy - repos have updates, but not published on crates-io yet?
+# This section is required since ecs_ldtk requires ecs_tilemap 0.12, and both require Bevy 0.12
+[patch.crates-io]
+bevy_ecs_tilemap = { git = "https://github.com/StarArawn/bevy_ecs_tilemap" }
+bevy_ecs_ldtk = { git = "https://github.com/Trouv/bevy_ecs_ldtk" }

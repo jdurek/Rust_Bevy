@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_ecs_ldtk::prelude::*;
 
 mod map;
 mod components;
@@ -22,34 +23,51 @@ struct Person;
 #[derive(Component)]
 struct Name(String);
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Use this spot for loading in basic resources and initializations - including creating the first camera so we can display something
-    commands.spawn(Camera2dBundle::default());
-    map::build_map(commands);
+    let mut camera = Camera2dBundle::default();
+    camera.projection.scale = 0.5;
+    camera.transform.translation.x += 1280.0 / 4.0;
+    camera.transform.translation.y += 720.0 / 4.0;
+    
+    commands.spawn(camera);
+
+    let ldtk_handle = asset_server.load("LDtk_resources.ldtk");
+    commands.spawn(LdtkWorldBundle {
+        ldtk_handle,
+        ..Default::default()
+    });
+    
+    // map::build_map(commands);
 }
 
 fn main() {
     App::new()
-    .add_plugins(DefaultPlugins
-        .set(WindowPlugin{
-            primary_window: Some(Window{ 
-                title: "Rusty Odyssey".to_string(),
-                resolution: (1024 as f32, 720 as f32).into(),  // TODO - change this later for custom resolution (Or update it on the fly)
-                ..Default::default()
-            }),
-            ..Default::default()
-        }))
+    // .add_plugins(DefaultPlugins
+    //     .set(WindowPlugin{
+    //         primary_window: Some(Window{ 
+    //             title: "Rusty Odyssey".to_string(),
+    //             resolution: (1024 as f32, 720 as f32).into(),  // TODO - change this later for custom resolution (Or update it on the fly)
+    //             ..Default::default()
+    //         }),
+    //         ..Default::default()
+    //     }))
+    .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+    .add_plugins(LdtkPlugin)
+    .insert_resource(LevelSelection::index(0))
+
     .add_state::<GameplayState>()
     .add_state::<TurnState>()
     .add_state::<MenuState>()
 
     // States are loaded in - Begin loading in our main logic
     .add_systems(Startup, setup)
+    
 
-    .add_plugins(MapPlugin)
+    // .add_plugins(MapPlugin)
     
     // TODO - Figure out the schedule stuff so I can split the build_map and draw_map properly - Update is not the correct system, but it doesn't panic.
-    .add_systems(Update, map::draw_map)
+    // .add_systems(Update, map::draw_map)
     .run();
 }
 

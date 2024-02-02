@@ -84,6 +84,7 @@ impl Plugin for MapPlugin
         app
         // Test functions
         .add_systems(Startup, save_load_test)
+        
         // When loading in from the menu
         .add_systems(OnEnter(GameplayState::Exploration), placeholder)
         .add_systems(OnExit(GameplayState::Exploration), placeholder)
