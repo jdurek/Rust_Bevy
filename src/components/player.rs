@@ -11,6 +11,9 @@ pub struct PlayerComponent {
     
 }
 
+#[derive(Component, Default)]
+pub struct Player;
+
 impl PlayerComponent {
     pub fn new() -> Self {
         // Placeholder values for everything
@@ -21,3 +24,4 @@ impl PlayerComponent {
         }
     }
 }
+

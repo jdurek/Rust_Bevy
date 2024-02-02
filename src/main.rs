@@ -65,6 +65,8 @@ fn main() {
     
 
     // .add_plugins(MapPlugin)
+    .register_ldtk_entity::<PlayerBundle>("Player_Cursor")
+    .add_systems(Update, (move_player_from_input, translate_grid_coord_entitites))
     
     // TODO - Figure out the schedule stuff so I can split the build_map and draw_map properly - Update is not the correct system, but it doesn't panic.
     // .add_systems(Update, map::draw_map)
@@ -72,40 +74,47 @@ fn main() {
 }
 
 
-pub struct HelloPlugin;
 
-impl Plugin for HelloPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(GreetTimer(Timer::from_seconds(2.0, TimerMode::Repeating)))
-            .add_systems(Startup, add_people)
-            .add_systems(Update, (greet_people));
-    }
+#[derive(Component, Default)]
+pub struct Player;
+
+#[derive(Default, Bundle, LdtkEntity)]
+pub struct PlayerBundle {
+    player: Player,
+    #[sprite_sheet_bundle]
+    sprite_sheet_bundle: SpriteSheetBundle,
+    #[grid_coords]
+    grid_coords: GridCoords,
 }
 
+fn move_player_from_input(
+    mut players: Query<&mut GridCoords, With<Player>>,
+    input: Res<Input<KeyCode>>,
+){
+    let key = input.get_pressed().next().cloned();
+    let mut pos:GridCoords = GridCoords::new(0,0);
 
-fn add_people(mut commands: Commands) {
-    commands.spawn((Person, Name("Ford Prefect".to_string())));
-    commands.spawn((Person, Name("Arthur Dent".to_string())));
-    commands.spawn((Person, Name("Marvin Dprs".to_string())));
-}
-
-
-#[derive(Resource)]
-struct GreetTimer(Timer);
-
-fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&mut Name, With<Person>>) {
-    if timer.0.tick(time.delta()).just_finished() {
-        for name in &query {
-            println!("Hello {}!", name.0);
-        }    
-    }
-}
-
-fn update_people(mut query: Query<&mut Name, With<Person>>) {
-    for mut name in &mut query {
-        if name.0 == "Marvin Dprs" {
-            name.0 = "Marvin Shut".to_string();
-            break;
+    if let Some(key) = key {
+        match key {
+            KeyCode::Up | KeyCode::W => pos = GridCoords::new(0,1),
+            KeyCode::Left | KeyCode::A => pos = GridCoords::new(-1, 0),
+            KeyCode::Down | KeyCode::S => pos = GridCoords::new(0, -1),
+            KeyCode::Right | KeyCode::D => pos = GridCoords::new(1,0),
+            _=> ()
         }
+    }
+    for mut player_grid_coords in players.iter_mut() {
+        let dest = *player_grid_coords + pos;
+        *player_grid_coords = dest;
+    }
+    
+}
+
+fn translate_grid_coord_entitites(
+    mut grid_coord_entities: Query<(&mut Transform, &GridCoords), Changed<GridCoords>>,
+){
+    for (mut transform, grid_coords) in grid_coord_entities.iter_mut() {
+        transform.translation = bevy_ecs_ldtk::utils::grid_coords_to_translation(*grid_coords, IVec2::splat(16))
+        .extend(transform.translation.z);
     }
 }
