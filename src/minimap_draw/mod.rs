@@ -62,9 +62,56 @@ impl WallGrid {
         };
 
     }
+
+    // Given a wall index, and 2 coordinates - update both WallGrid and MapGrid
+    // If wall already exists - either just update the vals, or raise.
+    pub fn add_wall(&self, &mGrid: MapGrid, x1:i32, y1:i32, x2:i32, y2:i32){
+        // Unpack result of wall_index (If we get out of bounds, handle it)
+
+        // Update entry in WallGrid
+
+        // Determine which cells need to be updated (1-2 cells), and update those values
+    }
+    
+    // Opposite of add_wall, but takes the same args
+    // If wall didn't exist, can keep going without any issues
+    pub fn remove_wall(){
+
+    }
 }
 
 #[derive(Resource, Serialize, Deserialize)]
 pub struct MapGrid {
+    pub tiles: Vec<TileData>,
+    pub dim_x: i32,
+    pub dim_y: i32,
+}
 
+impl MapGrid {
+    pub fn new(width: i32, height:i32) -> MapGrid {
+        MapGrid {
+            dim_x: width,
+            dim_y: height,
+            tile_data: vec![TileData {tile_type:TileType::Floor,}; (width*height) as usize]
+        }
+    }
+
+    // Translate (x,y) coordinate into Vector index
+    pub fn xy_index(&self, x:i32, y:i32) -> usize {
+        (y as usize * self.dim_x as usize) + x as usize
+    }
+}
+
+// Helper function to convert from floating point coordinate to pixel it's part of
+pub fn coord_to_grid(x: f32, y: f32) -> (i32, i32) {
+    // Just use floor function to truncate floating point and return the X/Y values
+    (x.floor(), y.floor())
+}
+
+// Helper function to convert from floating point coordinate to nearest grid intersects, and the distance
+pub fn coord_to_grid(x: f32, y: f32) -> (i32, i32, f32) {
+    // Round to the nearest integer, then use lazy method (total of differences, rather than true-line)
+    // TODO - test this function, might need to forcibly convert some values
+    let dist = (x - x.round()).abs() + (y - y.round()).abs();
+    (x.round(), y.round(), dist)
 }
