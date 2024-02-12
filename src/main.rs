@@ -101,7 +101,7 @@ fn main() {
 
     .add_systems(Startup, minimap_setup)
 
-    .add_systems(Update, minimap_draw::draw_grid)
+    .add_systems(Update, (minimap_draw::draw_grid, minimap_draw::draw_wall))
     .run();
     
 }
