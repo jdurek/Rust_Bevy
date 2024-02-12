@@ -40,7 +40,18 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         ..Default::default()
     });
     
+    // minimap_draw::build_init(commands);
     // map::build_map(commands);
+}
+
+fn minimap_setup(mut commands: Commands, asset_server: Res<AssetServer>){
+    let mut camera = Camera2dBundle::default();
+    camera.projection.scale = 0.5;
+    camera.transform.translation.x += 1280.0 / 4.0;
+    camera.transform.translation.y += 720.0 / 4.0;
+    
+    commands.spawn(camera);
+    minimap_draw::build_init(commands);
 }
 
 fn main() {
@@ -88,7 +99,9 @@ fn main() {
             ..Default::default()
         }))
 
+    .add_systems(Startup, minimap_setup)
 
+    .add_systems(Update, minimap_draw::draw_grid)
     .run();
     
 }

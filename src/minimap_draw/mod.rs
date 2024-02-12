@@ -7,6 +7,9 @@ use crate::prelude::*;
     The wall vector is not needed for exporting, as we can rebuild from only the tiles - but the walls should make it easier to visualize code-wise.
 */
 
+#[derive(Component)]
+pub struct TileStruct;
+
 // Alternate tile type - this one holds wall data as well for faster checks
 #[derive(Component, Clone, Serialize, Deserialize)]
 pub struct Tile {
@@ -142,7 +145,6 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
     for y in 0..mg.dim_y {
         for x in 0..mg.dim_x {
             let index = coord_to_grid(x as f32, y as f32);
-
             // Using the tile at index, render on the map - 
             // For now, all tiles will render the same regardless of type, add a match statement later
             commands.spawn(SpriteBundle{
@@ -154,12 +156,21 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
                     ..default()
                 },
                 ..Default::default()
-            });
+            })
+            ;
         }
     }
 }
 
-// Draws only the walls, this goes on top of the drawn grid
+// Draws only the walls, this goes on top of the map's grid (Or under it?)
 pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
 
+}
+
+// Builds a grid and walls
+pub fn build_init(mut commands: Commands){
+    let mg = MapGrid::new(16,16);
+    // let wg = WallGrid::new();
+    commands.insert_resource(mg);
+    // commands.insert_resource(wg);
 }
