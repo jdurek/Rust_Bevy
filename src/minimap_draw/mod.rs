@@ -1,3 +1,5 @@
+use bevy::window::PrimaryWindow;
+
 use crate::prelude::*;
 // use crate::prelude::Map;
 
@@ -147,7 +149,7 @@ pub fn coord_to_grid_wall(x: f32, y: f32) -> (i32, i32, f32) {
 /* Entity that points to map/wall grids, and stores additional info? */
 
 /* All code below this section will pertain to drawing the map/walls if possible */
-const ZOOM_LEVEL: f32 = 15.0; // Check if this conflicts with map.rs const
+const ZOOM_LEVEL: f32 = 16.0; // Check if this conflicts with map.rs const
 
 // Draws only the grid
 pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
@@ -221,3 +223,61 @@ pub fn build_init(mut commands: Commands){
 
 // TODO - add this coordinate system transformation (Camera to world coords)
 // https://bevy-cheatbook.github.io/cookbook/cursor2world.html
+
+
+// Experimenting with drawing a wall - 
+pub fn mouse_wall_gui(
+    mut commands: Commands,
+    q_window: Query<&Window, With<PrimaryWindow>>,
+    mouse: Res<Input<MouseButton>>, 
+    // Reference to our Camera so we can translate to world coordinates
+    map_cam: Query<(&Camera, &GlobalTransform)>,  //TODO - adjust when more cameras are added
+) {
+    // Fetch camera information
+    let (camera, camera_transform) = map_cam.single();
+    let window = q_window.single();
+
+    if let Some(world_position) = window.cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        .map(|ray| ray.origin.truncate())
+    {
+        // Cursor is defined at world_position, a x/y pair
+        // Match these to the size of our ZOOM_LEVEL - 
+        // NOTE - true 0,0 is the center of the 1st sprite, so we shift all values over by half a sprite for 0,0 to be bottom left corner of sprite
+        let rounded_positions = (world_position.x.round() + ZOOM_LEVEL/2., world_position.y.round() + ZOOM_LEVEL/2.);
+        // These two are localized X/Y values within a pixel (0 to ZOOM_LEVEL - 1)
+        let loc_x = rounded_positions.0.rem_euclid(ZOOM_LEVEL);
+        let loc_y = rounded_positions.1.rem_euclid(ZOOM_LEVEL);
+
+        let rounded_diff_x = (world_position.x - world_position.x.round()).abs();
+        let rounded_diff_y = (world_position.y - world_position.y.round()).abs();
+        
+        if mouse.just_pressed(MouseButton::Left) {
+            // Try to find nearest whole coordinate within reason (EG if a pixel is 16 tiles, 4 tiles near the corner)
+            if (loc_x / ZOOM_LEVEL < 0.2 || loc_x / ZOOM_LEVEL > 0.8) &&
+               (loc_y / ZOOM_LEVEL < 0.2 || loc_y / ZOOM_LEVEL > 0.8) 
+            {
+                println!("Close enough to a corner!");
+            }
+            
+            println!("Position: {},{}", loc_x, loc_y);
+        }
+
+        if mouse.pressed(MouseButton::Left) {
+            // Update the sprite to follow the current position
+        }
+        // if mouse.just_pressed(MouseButton::Right) {
+        //     // Try to find the nearest 'wall' - just check if we're near an int and take other 2 values
+        //     // Currently unimplemented for now
+        // }
+    }
+
+    if mouse.just_released(MouseButton::Left) {
+
+        // Figure out if the new 'wall' is valid - wall_index
+
+        // Update WallGrid (Which is a resource, add to our function's queries) - add_wall
+
+        
+    }
+}

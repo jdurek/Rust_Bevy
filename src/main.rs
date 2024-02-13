@@ -23,7 +23,7 @@ use prelude::*;
 struct Person;
 
 #[derive(Component)]
-struct Name(String);
+struct MainCamera;
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Use this spot for loading in basic resources and initializations - including creating the first camera so we can display something
@@ -47,10 +47,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 fn minimap_setup(mut commands: Commands, asset_server: Res<AssetServer>){
     let mut camera = Camera2dBundle::default();
     camera.projection.scale = 0.5;
-    camera.transform.translation.x += 1280.0 / 4.0;
-    camera.transform.translation.y += 720.0 / 4.0;
+    // Camera starts pointed at 0,0 coordinate (Middle of screen)
+    // camera.transform.translation.x += 1280.0 / 4.0;
+    // camera.transform.translation.y += 720.0 / 4.0;
     
-    commands.spawn(camera);
+    commands.spawn((camera, MainCamera));
     minimap_draw::build_init(commands);
 }
 
@@ -100,10 +101,11 @@ fn main() {
         }))
 
     .add_systems(Startup, minimap_setup)
+    .add_state::<TurnState>()
 
     .add_systems(Update, (minimap_draw::draw_grid, minimap_draw::draw_wall))
+    .add_systems(Update, minimap_draw::mouse_wall_gui)
     .run();
-    
 }
 
 
