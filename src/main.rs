@@ -5,7 +5,7 @@ use bevy_ecs_ldtk::prelude::*;
 mod components;
 mod resources;
 // mod map_pipeline;
-mod minimap_draw;
+mod minimap;
 
 mod prelude {
     pub use bevy::prelude::*;
@@ -14,7 +14,7 @@ mod prelude {
     pub use crate::components::*;
     pub use crate::resources::*;
     // pub use crate::map_pipeline::*;
-    pub use crate::minimap_draw::*;
+    pub use crate::minimap::*;
 }
 
 use prelude::*;
@@ -56,43 +56,11 @@ fn minimap_setup(mut commands: Commands, asset_server: Res<AssetServer>){
     
     commands.spawn((camera, MainCamera));
 
-    minimap_draw::build_init(commands);
+    minimap::build_init(commands);
 }
 
 fn main() {
     /* Following section is for rendering LDTK sprite-maps */
-    // App::new()
-    // // .add_plugins(DefaultPlugins
-    // //     .set(WindowPlugin{
-    // //         primary_window: Some(Window{ 
-    // //             title: "Rusty Odyssey".to_string(),
-    // //             resolution: (1024 as f32, 720 as f32).into(),  // TODO - change this later for custom resolution (Or update it on the fly)
-    // //             ..Default::default()
-    // //         }),
-    // //         ..Default::default()
-    // //     }))
-    // .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-    // .add_plugins(LdtkPlugin)
-    // .insert_resource(LevelSelection::index(0))
-
-    // .add_state::<GameplayState>()
-    // .add_state::<TurnState>()
-    // .add_state::<MenuState>()
-
-    // // States are loaded in - Begin loading in our main logic
-    // .add_systems(Startup, setup)
-    
-
-    // // .add_plugins(MapPlugin)
-    // .register_ldtk_entity::<PlayerBundle>("Player_Cursor")
-    // .add_systems(Update, (move_player_from_input, translate_grid_coord_entitites))
-    
-    // // TODO - Figure out the schedule stuff so I can split the build_map and draw_map properly - Update is not the correct system, but it doesn't panic.
-    // // .add_systems(Update, map::draw_map)
-    // .run();
-
-
-    /* Following section is for the minimap rendering pipeline */
     App::new()
     .add_plugins(DefaultPlugins
         .set(WindowPlugin{
@@ -103,12 +71,26 @@ fn main() {
             }),
             ..Default::default()
         }))
+    .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
 
-    .add_systems(Startup, minimap_setup)
+    // The following was part of a Ldtk experimentation for a tileset rendering
+    // .add_plugins(LdtkPlugin)
+    // .insert_resource(LevelSelection::index(0))
+
+    .add_state::<GameplayState>()
     .add_state::<TurnState>()
+    .add_state::<MenuState>()
 
-    .add_systems(Update, (minimap_draw::draw_grid, minimap_draw::draw_wall))
-    .add_systems(Update, minimap_draw::mouse_wall_gui)
+    // States are loaded in - Begin loading in our main logic
+    .add_systems(Startup, setup)
+    
+
+    // .add_plugins(MapPlugin)
+    .register_ldtk_entity::<PlayerBundle>("Player_Cursor")
+    .add_systems(Update, (move_player_from_input, translate_grid_coord_entitites))
+    
+    // TODO - Figure out the schedule stuff so I can split the build_map and draw_map properly - Update is not the correct system, but it doesn't panic.
+    // .add_systems(Update, map::draw_map)
     .run();
 }
 

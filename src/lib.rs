@@ -1,3 +1,3 @@
 pub mod components;
-pub mod minimap_draw;
+pub mod minimap;
 pub mod resources;

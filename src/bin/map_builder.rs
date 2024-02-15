@@ -1,6 +1,12 @@
 /* 
 New Binary File
-    Usage: Runs the Minimap Editor GUI, which allows me to open/edit/save minimaps
+    Usage: Runs the Minimap Editor GUI
+    GUI will support the following functions - 
+        Open map from file(s)
+        Edit map parameters (Tiles, Walls, Links between maps)
+        Save Map to file(s)
+    Potential far future features
+        Hot-testing map (Load the map in game engine)
 */
 
 use bevy::prelude::*;
@@ -13,7 +19,7 @@ mod prelude {
     pub use serde::*;
     pub use bevy_roguelike::components::*;
     pub use bevy_roguelike::resources::*;
-    pub use bevy_roguelike::minimap_draw::*;
+    pub use bevy_roguelike::minimap::*;
 }
 
 
@@ -35,7 +41,7 @@ fn minimap_setup(mut commands: Commands, asset_server: Res<AssetServer>){
     
     commands.spawn((camera, MainCamera));
 
-    bevy_roguelike::minimap_draw::build_init(commands);
+    bevy_roguelike::minimap::build_init(commands);
 }
 
 
