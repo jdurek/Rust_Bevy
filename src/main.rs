@@ -1,19 +1,19 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
-mod map;
+// mod map;
 mod components;
 mod resources;
-mod map_pipeline;
+// mod map_pipeline;
 mod minimap_draw;
 
 mod prelude {
     pub use bevy::prelude::*;
     pub use serde::*;
-    pub use crate::map::*;
+    // pub use crate::map::*;
     pub use crate::components::*;
     pub use crate::resources::*;
-    pub use crate::map_pipeline::*;
+    // pub use crate::map_pipeline::*;
     pub use crate::minimap_draw::*;
 }
 
@@ -24,6 +24,9 @@ struct Person;
 
 #[derive(Component)]
 struct MainCamera;
+
+#[derive(Component)]
+struct GUICamera;
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Use this spot for loading in basic resources and initializations - including creating the first camera so we can display something
@@ -52,6 +55,7 @@ fn minimap_setup(mut commands: Commands, asset_server: Res<AssetServer>){
     // camera.transform.translation.y += 720.0 / 4.0;
     
     commands.spawn((camera, MainCamera));
+
     minimap_draw::build_init(commands);
 }
 

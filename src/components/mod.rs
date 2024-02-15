@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-// This file holds all generic components that don't have much complexity - such as positionings
+// Exposes most generic components that might be shared among multiple modules
 
 
 // Most elements will typically have Z of 0, but sometimes something may be hidden in a tile on a different Z axis (Underground, Above)

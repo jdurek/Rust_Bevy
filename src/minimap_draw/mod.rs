@@ -1,7 +1,6 @@
 use bevy::window::PrimaryWindow;
 
 use crate::prelude::*;
-// use crate::prelude::Map;
 
 /* 
     This module is more for me to experiment with 'drawing' a map, and potentially making a GUI that'd let me draw and save maps quickly into the map format
@@ -271,21 +270,21 @@ pub fn mouse_wall_gui(
         // Display mouse coordinates VIA a textbox 
         let pos_str = format!("({loc_x}, {loc_y})");
         
-        commands.spawn(
-            TextBundle::from_section(
-                pos_str,
-                TextStyle {
-                    ..Default::default()
-                },
-            )
-            .with_text_alignment(TextAlignment::Right)
-            .with_style(Style {
-                position_type: PositionType::Absolute,
-                bottom: Val::Px(5.0),
-                right: Val::Px(5.0),
-                ..default()
-            })
-        );
+        // commands.spawn(
+        //     TextBundle::from_section(
+        //         pos_str,
+        //         TextStyle {
+        //             ..Default::default()
+        //         },
+        //     )
+        //     .with_text_alignment(TextAlignment::Right)
+        //     .with_style(Style {
+        //         position_type: PositionType::Absolute,
+        //         bottom: Val::Px(5.0),
+        //         right: Val::Px(5.0),
+        //         ..default()
+        //     })
+        // );
 
 
     }
