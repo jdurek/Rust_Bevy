@@ -249,9 +249,6 @@ pub fn mouse_wall_gui(
         let loc_x = rounded_positions.0.rem_euclid(ZOOM_LEVEL);
         let loc_y = rounded_positions.1.rem_euclid(ZOOM_LEVEL);
 
-        let rounded_diff_x = (world_position.x - world_position.x.round()).abs();
-        let rounded_diff_y = (world_position.y - world_position.y.round()).abs();
-        
         if mouse.just_pressed(MouseButton::Left) {
             // Try to find nearest whole coordinate within reason (EG if a pixel is 16 tiles, 4 tiles near the corner)
             if (loc_x / ZOOM_LEVEL < 0.2 || loc_x / ZOOM_LEVEL > 0.8) &&
@@ -270,6 +267,27 @@ pub fn mouse_wall_gui(
         //     // Try to find the nearest 'wall' - just check if we're near an int and take other 2 values
         //     // Currently unimplemented for now
         // }
+
+        // Display mouse coordinates VIA a textbox 
+        let pos_str = format!("({loc_x}, {loc_y})");
+        
+        commands.spawn(
+            TextBundle::from_section(
+                pos_str,
+                TextStyle {
+                    ..Default::default()
+                },
+            )
+            .with_text_alignment(TextAlignment::Right)
+            .with_style(Style {
+                position_type: PositionType::Absolute,
+                bottom: Val::Px(5.0),
+                right: Val::Px(5.0),
+                ..default()
+            })
+        );
+
+
     }
 
     if mouse.just_released(MouseButton::Left) {
@@ -280,4 +298,6 @@ pub fn mouse_wall_gui(
 
         
     }
+
+    
 }
