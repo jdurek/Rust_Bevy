@@ -75,3 +75,80 @@ pub fn build_init(mut commands: Commands){
     commands.insert_resource(mg);
     commands.insert_resource(wg);
 }
+
+// Experimenting with drawing a wall starts by finding initial coordinate - 
+pub fn mouse_wall_gui(
+    mut commands: Commands,
+    q_window: Query<&Window, With<PrimaryWindow>>,
+    mouse: Res<Input<MouseButton>>, 
+    // Reference to our Camera so we can translate to world coordinates
+    map_cam: Query<(&Camera, &GlobalTransform)>,  //TODO - adjust when more cameras are added
+) {
+    // Fetch camera information
+    let (camera, camera_transform) = map_cam.single();
+    let window = q_window.single();
+
+    if let Some(world_position) = window.cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        .map(|ray| ray.origin.truncate())
+    {
+        // Cursor is defined at world_position, a x/y pair
+        // Match these to the size of our ZOOM_LEVEL - 
+        // NOTE - true 0,0 is the center of the 1st sprite, so we shift all values over by half a sprite for 0,0 to be bottom left corner of sprite
+        let rounded_positions = (world_position.x.round() + ZOOM_LEVEL/2., world_position.y.round() + ZOOM_LEVEL/2.);
+        // These two are localized X/Y values within a pixel (0 to ZOOM_LEVEL - 1)
+        let loc_x = rounded_positions.0.rem_euclid(ZOOM_LEVEL);
+        let loc_y = rounded_positions.1.rem_euclid(ZOOM_LEVEL);
+
+        if mouse.just_pressed(MouseButton::Left) {
+            // Try to find nearest whole coordinate within reason (EG if a pixel is 16 tiles, 4 tiles near the corner)
+            if (loc_x / ZOOM_LEVEL < 0.2 || loc_x / ZOOM_LEVEL > 0.8) &&
+               (loc_y / ZOOM_LEVEL < 0.2 || loc_y / ZOOM_LEVEL > 0.8) 
+            {
+                println!("Close enough to a corner!");
+            }
+            
+            println!("Position: {},{}", loc_x, loc_y);
+        }
+
+        if mouse.pressed(MouseButton::Left) {
+            // Update the sprite to follow the current position
+        }
+        // if mouse.just_pressed(MouseButton::Right) {
+        //     // Try to find the nearest 'wall' - just check if we're near an int and take other 2 values
+        //     // Currently unimplemented for now
+        // }
+
+        // Display mouse coordinates VIA a textbox 
+        let pos_str = format!("({loc_x}, {loc_y})");
+        
+        // commands.spawn(
+        //     TextBundle::from_section(
+        //         pos_str,
+        //         TextStyle {
+        //             ..Default::default()
+        //         },
+        //     )
+        //     .with_text_alignment(TextAlignment::Right)
+        //     .with_style(Style {
+        //         position_type: PositionType::Absolute,
+        //         bottom: Val::Px(5.0),
+        //         right: Val::Px(5.0),
+        //         ..default()
+        //     })
+        // );
+
+
+    }
+
+    if mouse.just_released(MouseButton::Left) {
+
+        // Figure out if the new 'wall' is valid - wall_index
+
+        // Update WallGrid (Which is a resource, add to our function's queries) - add_wall
+
+        
+    }
+
+    
+}

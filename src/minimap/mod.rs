@@ -88,20 +88,31 @@ impl WallGrid {
 
     }
 
-    // Given a wall index, and 2 coordinates - update both WallGrid and MapGrid
-    // If wall already exists - either just update the vals, or raise.
-    pub fn add_wall(&self, m_grid: MapGrid, x1:i32, y1:i32, x2:i32, y2:i32){
+    // Add wall - final validation is done by wall_index()
+    // If wall already existed - just overrides with a new default wall
+    pub fn add_wall(&mut self, x1:i32, y1:i32, x2:i32, y2:i32){
         // Unpack result of wall_index (If we get out of bounds, handle it)
-
-        // Update entry in WallGrid
-
-        // Determine which cells need to be updated (1-2 cells), and update those values
+        if let Ok(wall_loc) = self.wall_index(x1, y1, x2, y2){
+            // Update entry in WallGrid
+            self.walls[wall_loc] = Wall {vis:true, pres: true};
+        }
+        else {
+            // Wall index was invalid (Not within the bounds of the map)
+            // Don't display wall
+        }
     }
     
     // Opposite of add_wall, but takes the same args
     // If wall didn't exist, can keep going without any issues
-    pub fn remove_wall(){
-
+    pub fn remove_wall(&mut self, x1:i32, y1:i32, x2:i32, y2:i32){
+        if let Ok(wall_loc) = self.wall_index(x1, y1, x2, y2){
+            // Update entry in WallGrid
+            self.walls[wall_loc] = Wall {vis:false, pres: false};
+        }
+        else {
+            // Wall index was invalid (Not within the bounds of the map)
+            // Don't display wall
+        }
     }
 }
 
@@ -125,6 +136,12 @@ impl MapGrid {
     pub fn xy_index(&self, x:i32, y:i32) -> usize {
         (y as usize * self.dim_x as usize) + x as usize
     }
+
+    // Given a line of 2 points, figure out which 1-2 grids are involved
+
+    // Given a line of 2 points, add 'walls' to the relavant grid entries
+
+    // Given a line of 2 points, remove 'walls' from the relevant grid entries
 }
 
 // Helper function to convert from floating point coordinate to pixel it's part of
@@ -143,158 +160,9 @@ pub fn coord_to_grid_wall(x: f32, y: f32) -> (i32, i32, f32) {
 
 
 
-/* Entity that points to map/wall grids, and stores additional info? */
-
-/* All code below this section will pertain to drawing the map/walls if possible */
-const ZOOM_LEVEL: f32 = 16.0; // Check if this conflicts with map.rs const
-
-// Draws only the grid
-// pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
-//     for y in 0..mg.dim_y {
-//         for x in 0..mg.dim_x {
-//             let index = coord_to_grid(x as f32, y as f32);
-//             // Using the tile at index, render on the map - 
-//             // For now, all tiles will render the same regardless of type, add a match statement later
-//             commands.spawn(SpriteBundle{
-//                 sprite: Sprite { color: Color::TURQUOISE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
-//                 visibility: Visibility::Visible,
-//                 transform: Transform {
-//                     translation: Vec2::new(x as f32 * ZOOM_LEVEL, y as f32 * ZOOM_LEVEL).extend(0.0),
-//                     scale: Vec3::new(ZOOM_LEVEL-1., ZOOM_LEVEL-1., 0.),
-//                     ..default()
-//                 },
-//                 ..Default::default()
-//             });
-//         }
-//     }
-// }
-
-// // Draws only the walls, this goes on top of the map's grid (Or under it?)
-// pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
-//     // Iterating over wall-grid means we flip between horizontal and vertical walls
-//     for x in 0..mw.dim_x + 1 {
-//         for h in 0..mw.dim_x{
-//             //Index will be x + h*(x+y+1)
-//             // Check if the wall is enabled or not
-//             if mw.walls[(x+h*(mw.dim_x+mw.dim_y+1)) as usize].pres == true {
-//                 commands.spawn(SpriteBundle{
-//                     sprite: Sprite { color: Color::ANTIQUE_WHITE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
-//                     visibility: Visibility::Visible,
-//                     transform: Transform {
-//                         translation: Vec2::new(h as f32 * ZOOM_LEVEL, x as f32 * ZOOM_LEVEL - ZOOM_LEVEL/2.).extend(0.0),
-//                         scale: Vec3::new(ZOOM_LEVEL, 1.5, 1.),
-//                         ..default()
-//                     },
-//                     ..Default::default()
-//                 });
-//             }
-//         }
-//     }
-//     for y in 0..mw.dim_y {
-//         for v in 0..mw.dim_y + 1 {
-//             // Index will be dim_x + v + y*(x+y+1)
-//             if mw.walls[(mw.dim_x + v + y*(mw.dim_x+mw.dim_y+1)) as usize].pres == true {
-//                 commands.spawn(SpriteBundle{
-//                     sprite: Sprite { color: Color::ANTIQUE_WHITE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
-//                     visibility: Visibility::Visible,
-//                     transform: Transform {
-//                         translation: Vec2::new(v as f32 * ZOOM_LEVEL - ZOOM_LEVEL/2., y as f32 * ZOOM_LEVEL).extend(0.0),
-//                         scale: Vec3::new(1.5, ZOOM_LEVEL, 1.),
-//                         ..default()
-//                     },
-//                     ..Default::default()
-//                 });
-//             }
-//         }
-//     }
-    
-// }
-
-// Builds a grid and walls
-pub fn build_init(mut commands: Commands){
-    let mg = MapGrid::new(16,16);
-    let wg = WallGrid::new(16,16);
-    commands.insert_resource(mg);
-    commands.insert_resource(wg);
-}
-
-// TODO - add this coordinate system transformation (Camera to world coords)
-// https://bevy-cheatbook.github.io/cookbook/cursor2world.html
+// Centralizing the const vars that components are using, mainly because some will likely become dynamic
+const ZOOM_LEVEL: f32 = 16.0; // Number of pixels a tile occupies
 
 
-// Experimenting with drawing a wall - 
-pub fn mouse_wall_gui(
-    mut commands: Commands,
-    q_window: Query<&Window, With<PrimaryWindow>>,
-    mouse: Res<Input<MouseButton>>, 
-    // Reference to our Camera so we can translate to world coordinates
-    map_cam: Query<(&Camera, &GlobalTransform)>,  //TODO - adjust when more cameras are added
-) {
-    // Fetch camera information
-    let (camera, camera_transform) = map_cam.single();
-    let window = q_window.single();
-
-    if let Some(world_position) = window.cursor_position()
-        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
-        .map(|ray| ray.origin.truncate())
-    {
-        // Cursor is defined at world_position, a x/y pair
-        // Match these to the size of our ZOOM_LEVEL - 
-        // NOTE - true 0,0 is the center of the 1st sprite, so we shift all values over by half a sprite for 0,0 to be bottom left corner of sprite
-        let rounded_positions = (world_position.x.round() + ZOOM_LEVEL/2., world_position.y.round() + ZOOM_LEVEL/2.);
-        // These two are localized X/Y values within a pixel (0 to ZOOM_LEVEL - 1)
-        let loc_x = rounded_positions.0.rem_euclid(ZOOM_LEVEL);
-        let loc_y = rounded_positions.1.rem_euclid(ZOOM_LEVEL);
-
-        if mouse.just_pressed(MouseButton::Left) {
-            // Try to find nearest whole coordinate within reason (EG if a pixel is 16 tiles, 4 tiles near the corner)
-            if (loc_x / ZOOM_LEVEL < 0.2 || loc_x / ZOOM_LEVEL > 0.8) &&
-               (loc_y / ZOOM_LEVEL < 0.2 || loc_y / ZOOM_LEVEL > 0.8) 
-            {
-                println!("Close enough to a corner!");
-            }
-            
-            println!("Position: {},{}", loc_x, loc_y);
-        }
-
-        if mouse.pressed(MouseButton::Left) {
-            // Update the sprite to follow the current position
-        }
-        // if mouse.just_pressed(MouseButton::Right) {
-        //     // Try to find the nearest 'wall' - just check if we're near an int and take other 2 values
-        //     // Currently unimplemented for now
-        // }
-
-        // Display mouse coordinates VIA a textbox 
-        let pos_str = format!("({loc_x}, {loc_y})");
-        
-        // commands.spawn(
-        //     TextBundle::from_section(
-        //         pos_str,
-        //         TextStyle {
-        //             ..Default::default()
-        //         },
-        //     )
-        //     .with_text_alignment(TextAlignment::Right)
-        //     .with_style(Style {
-        //         position_type: PositionType::Absolute,
-        //         bottom: Val::Px(5.0),
-        //         right: Val::Px(5.0),
-        //         ..default()
-        //     })
-        // );
 
 
-    }
-
-    if mouse.just_released(MouseButton::Left) {
-
-        // Figure out if the new 'wall' is valid - wall_index
-
-        // Update WallGrid (Which is a resource, add to our function's queries) - add_wall
-
-        
-    }
-
-    
-}

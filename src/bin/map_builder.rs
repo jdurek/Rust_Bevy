@@ -41,7 +41,7 @@ fn minimap_setup(mut commands: Commands, asset_server: Res<AssetServer>){
     
     commands.spawn((camera, MainCamera));
 
-    bevy_roguelike::minimap::build_init(commands);
+    bevy_roguelike::minimap::draw_map::build_init(commands);
 }
 
 
