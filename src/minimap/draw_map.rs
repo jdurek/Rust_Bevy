@@ -5,7 +5,7 @@
 
 use bevy::ecs::world;
 
-use crate::{components::Position, minimap::*};
+use crate::{components::Position, minimap::*, resources::*, };
 
 // Component is only for query lookup
 #[derive(Component)]
@@ -81,6 +81,14 @@ pub fn build_init(mut commands: Commands){
     let wg = WallGrid::new(16,16);
     commands.insert_resource(mg);
     commands.insert_resource(wg);
+}
+
+// Simple function to handle moving out of the render state
+pub fn render_map(
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<MapBuildState>>,
+) {
+    next_state.set(MapBuildState::Drawing);
 }
 
 // Experimenting with drawing a wall - starts by finding initial coordinate - 
@@ -195,6 +203,8 @@ pub fn mouse_wall_gui(
                 //         print!("Snapping line");
                 //         pos.x = loc_x as i32;
                 //         pos.y = loc_y as i32;
+
+                //         // update state to RenderMap after drawing our 'update'
                 //     }
                 // }
 
@@ -239,3 +249,5 @@ pub fn mouse_wall_gui(
 
     
 }
+
+

@@ -58,11 +58,15 @@ fn main() {
             ..Default::default()
         }))
     
+    .add_state::<MapBuildState>()
+    // .init_state::<MapBuildState>()   // Seems like Bevy .13 uses this instead of add_state
+
     .add_systems(Startup, minimap_setup)
-    .add_state::<TurnState>()
     
-    .add_systems(Update, (draw_grid, draw_wall))
-    .add_systems(Update, mouse_wall_gui)
+    // .add_systems(OnEnter(MapBuildState::LoadingMap), systems)
+    // TODO - figure out a cleaner way to move between states - for now, render_map func just handles the state swap
+    .add_systems(Update, (draw_grid, draw_wall, render_map).run_if(in_state(MapBuildState::RenderMap)))
+    .add_systems(Update, mouse_wall_gui.run_if(in_state(MapBuildState::Drawing)))
     
     .run();
 }

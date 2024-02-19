@@ -42,3 +42,13 @@ pub enum GameplayState {
     Dialogue,
     Cutscene,
 }
+
+// Simple states for the map_builder loop
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+pub enum MapBuildState {
+    #[default]
+    RenderMap,
+    LoadingMap,
+    SavingMap,
+    Drawing,
+}
