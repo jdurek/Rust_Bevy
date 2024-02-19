@@ -172,10 +172,8 @@ pub fn mouse_wall_gui(
 
         if mouse.pressed(MouseButton::Left) {
             // Fetches the sprite to edit (If it exists - it may have not been created)
-            for (drag, mut transf, pos, ent) in draw_line.iter_mut(){
+            for (_drag, mut transf, pos, _ent) in draw_line.iter_mut(){
                 // println!("Dumping transform data... {}, {}, {}", transf.translation, transf.scale, transf.rotation)
-                
-                // TODO - Fix the centering issue - the sprite's center needs to move
                 
                 // Updates 2 values in the Transform section of the sprite bundle - Scale and Rotation
                 // Needs to use the Translation values to fetch the 'point of origin' for some computations
@@ -185,6 +183,11 @@ pub fn mouse_wall_gui(
                 let dist = ((world_position.x - pos.x as f32).abs().powi(2) + (world_position.y - pos.y as f32).abs().powi(2)).sqrt();
 
                 // Update our Transform values
+                // Possible TODO - limit the scale to ZOOM_LEVEL, and add logic for snapping to endpoints, shifting the wall then
+                /* Logic for the above todo - 
+                 * Reuse the just-pressed corner detection (with a little more precision)
+                 * If we're close enough to a corner, call the wall creation scripts, and shift our sprite to start from that corner next
+                 */
                 transf.scale.x = dist;
                 transf.rotation = Quat::from_rotation_z(theta);
                 // Slide translation to halfway (Midpoints of our lines)
@@ -202,7 +205,7 @@ pub fn mouse_wall_gui(
 
     }   
 
-    // Handle despawning the line entity we just drew - 
+    // Handle despawning the line entity - 
     if mouse.just_released(MouseButton::Left) {
         // Clean up the display 
         for a in draw_line.iter(){
@@ -210,7 +213,7 @@ pub fn mouse_wall_gui(
             commands.entity(a.3).despawn();
         }
 
-        // Update WallGrid (Which is a resource, add to our function's queries) - add_wall
+        // Check to see if we missed a wall creation (Snap-in-place logic handled most of it)
 
         
     }
