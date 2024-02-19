@@ -90,7 +90,7 @@ pub fn mouse_wall_gui(
     mouse: Res<Input<MouseButton>>, 
     // Reference to our Camera so we can translate to world coordinates
     map_cam: Query<(&Camera, &GlobalTransform)>,  //TODO - adjust when more cameras are added
-    mut draw_line: Query<(&DragLine, &mut Transform, &Position, Entity)>,
+    mut draw_line: Query<(&DragLine, &mut Transform, &mut Position, Entity)>,
 ) {
     // Fetch camera information
     let (camera, camera_transform) = map_cam.single();
@@ -172,7 +172,7 @@ pub fn mouse_wall_gui(
 
         if mouse.pressed(MouseButton::Left) {
             // Fetches the sprite to edit (If it exists - it may have not been created)
-            for (_drag, mut transf, pos, _ent) in draw_line.iter_mut(){
+            for (_drag, mut transf, mut pos, _ent) in draw_line.iter_mut(){
                 // println!("Dumping transform data... {}, {}, {}", transf.translation, transf.scale, transf.rotation)
                 
                 // Updates 2 values in the Transform section of the sprite bundle - Scale and Rotation
@@ -183,16 +183,35 @@ pub fn mouse_wall_gui(
                 let dist = ((world_position.x - pos.x as f32).abs().powi(2) + (world_position.y - pos.y as f32).abs().powi(2)).sqrt();
 
                 // Update our Transform values
-                // Possible TODO - limit the scale to ZOOM_LEVEL, and add logic for snapping to endpoints, shifting the wall then
+                // Possible TODO - add logic for snapping to endpoints and creating a wall if we do hit the endpoint
                 /* Logic for the above todo - 
                  * Reuse the just-pressed corner detection (with a little more precision)
                  * If we're close enough to a corner, call the wall creation scripts, and shift our sprite to start from that corner next
                  */
-                transf.scale.x = dist;
+                // if dist > ZOOM_LEVEL * 0.95 {
+                //     // Line is long enough that it could snap onto a valid point - check if we're at one
+                //     if (loc_x / ZOOM_LEVEL < 0.06 || loc_x / ZOOM_LEVEL > 0.94) &&
+                //        (loc_y / ZOOM_LEVEL < 0.06 || loc_y / ZOOM_LEVEL > 0.94) {
+                //         print!("Snapping line");
+                //         pos.x = loc_x as i32;
+                //         pos.y = loc_y as i32;
+                //     }
+                // }
+
+                if dist < ZOOM_LEVEL {
+                    transf.scale.x = dist;
+                    transf.translation.x = (pos.x as f32 + world_position.x)/ 2. ;
+                    transf.translation.y = (pos.y as f32 + world_position.y)/ 2. ;
+                } else {
+                    transf.scale.x = ZOOM_LEVEL;
+                    // Force the translation to remain within fixed radius
+                    transf.translation.x = pos.x as f32 + (theta.cos() * ZOOM_LEVEL)/ 2. ;
+                    transf.translation.y = pos.y as f32 + (theta.sin() * ZOOM_LEVEL)/ 2. ;
+                }
                 transf.rotation = Quat::from_rotation_z(theta);
-                // Slide translation to halfway (Midpoints of our lines)
-                transf.translation.x = (pos.x as f32 + world_position.x)/ 2. ;
-                transf.translation.y = (pos.y as f32 + world_position.y)/ 2. ;
+                
+                
+                
 
             }
 
