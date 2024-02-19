@@ -5,7 +5,7 @@
 
 use bevy::ecs::world;
 
-use crate::minimap::*;
+use crate::{components::Position, minimap::*};
 
 // Component is only for query lookup
 #[derive(Component)]
@@ -90,7 +90,7 @@ pub fn mouse_wall_gui(
     mouse: Res<Input<MouseButton>>, 
     // Reference to our Camera so we can translate to world coordinates
     map_cam: Query<(&Camera, &GlobalTransform)>,  //TODO - adjust when more cameras are added
-    mut draw_line: Query<(&DragLine, &mut Transform, Entity)>,
+    mut draw_line: Query<(&DragLine, &mut Transform, &Position, Entity)>,
 ) {
     // Fetch camera information
     let (camera, camera_transform) = map_cam.single();
@@ -159,7 +159,10 @@ pub fn mouse_wall_gui(
                         ..default()
                     },
                     ..Default::default()
-                }, DragLine));
+                }, 
+                DragLine,
+                Position{x:start_x as i32, y:start_y as i32, z:0},
+                ));
                 
                 
             }
@@ -169,24 +172,27 @@ pub fn mouse_wall_gui(
 
         if mouse.pressed(MouseButton::Left) {
             // Fetches the sprite to edit (If it exists - it may have not been created)
-            for (drag, mut transf, ent) in draw_line.iter_mut(){
+            for (drag, mut transf, pos, ent) in draw_line.iter_mut(){
                 // println!("Dumping transform data... {}, {}, {}", transf.translation, transf.scale, transf.rotation)
+                
+                // TODO - Fix the centering issue - the sprite's center needs to move
                 
                 // Updates 2 values in the Transform section of the sprite bundle - Scale and Rotation
                 // Needs to use the Translation values to fetch the 'point of origin' for some computations
-                let norm_pts = (world_position.x - transf.translation.x, world_position.y - transf.translation.y);
+                let norm_pts = (world_position.x - pos.x as f32, world_position.y - pos.y as f32);
                 let theta = norm_pts.1.atan2(norm_pts.0);
                 // Compute dist value - we can assume it will always be a right angle triangle
-                let dist = ((world_position.x - transf.translation.x).abs().powi(2) + (world_position.y - transf.translation.y).abs().powi(2)).sqrt();
+                let dist = ((world_position.x - pos.x as f32).abs().powi(2) + (world_position.y - pos.y as f32).abs().powi(2)).sqrt();
 
                 // Update our Transform values
                 transf.scale.x = dist;
                 transf.rotation = Quat::from_rotation_z(theta);
+                // Slide translation to halfway (Midpoints of our lines)
+                transf.translation.x = (pos.x as f32 + world_position.x)/ 2. ;
+                transf.translation.y = (pos.y as f32 + world_position.y)/ 2. ;
 
             }
 
-
-            // TODO - replace with something like a 'score' board where we only edit a field instead of making a new sprite
             
         }
         // if mouse.just_pressed(MouseButton::Right) {
@@ -201,7 +207,7 @@ pub fn mouse_wall_gui(
         // Clean up the display 
         for a in draw_line.iter(){
             // Despawn the entity - should only be the one anyway
-            commands.entity(a.2).despawn();
+            commands.entity(a.3).despawn();
         }
 
         // Update WallGrid (Which is a resource, add to our function's queries) - add_wall
