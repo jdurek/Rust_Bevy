@@ -151,26 +151,31 @@ pub fn mouse_wall_gui(
             {
                 println!("Close enough to a corner!");
                 // TODO - snap the start_x and _y values to the corner itself (Multiple of ZOOM_LEVEL)
-                start_x = world_position.x;
-                start_y = world_position.y;
+                // start_x = world_position.x;
+                // start_y = world_position.y;
+
+                start_x = ((world_position.x + ZOOM_LEVEL /2.) / ZOOM_LEVEL).round() * ZOOM_LEVEL - ZOOM_LEVEL / 2.;
+                start_y = ((world_position.y + ZOOM_LEVEL /2.) / ZOOM_LEVEL).round() * ZOOM_LEVEL - ZOOM_LEVEL / 2.;
+
+                println!("Position: {},{}", start_x, start_y);
 
                 // TODO - add a component to these bundles specifically for the query
-                commands.spawn(
-                    TextBundle::from_section(
-                        pos_str,
-                        TextStyle {
-                            ..Default::default()
-                            },
-                        )
-                        .with_text_alignment(TextAlignment::Right)
-                        .with_style(Style {
-                            position_type: PositionType::Absolute,
-                            bottom: Val::Px(5.0),
-                            right: Val::Px(5.0),
-                            ..default()
-                        })
-                        .with_background_color(Color::BLACK)
-                );
+                // commands.spawn(
+                //     TextBundle::from_section(
+                //         pos_str,
+                //         TextStyle {
+                //             ..Default::default()
+                //             },
+                //         )
+                //         .with_text_alignment(TextAlignment::Right)
+                //         .with_style(Style {
+                //             position_type: PositionType::Absolute,
+                //             bottom: Val::Px(5.0),
+                //             right: Val::Px(5.0),
+                //             ..default()
+                //         })
+                //         .with_background_color(Color::BLACK)
+                // );
     
                 // Spawn a 'line' with a default rotation and length of 0
                 // Snaps the start of the line to the nearest valid corner
@@ -193,7 +198,7 @@ pub fn mouse_wall_gui(
                 
             }
             
-            println!("Position: {},{}", loc_x, loc_y);
+            
         }
 
         if mouse.pressed(MouseButton::Left) {
@@ -209,25 +214,30 @@ pub fn mouse_wall_gui(
                 let dist = ((world_position.x - pos.x as f32).abs().powi(2) + (world_position.y - pos.y as f32).abs().powi(2)).sqrt();
 
                 // Update our Transform values
-                // Possible TODO - add logic for snapping to endpoints and creating a wall if we do hit the endpoint
-                /* Logic for the above todo - 
-                 * Reuse the just-pressed corner detection (with a little more precision)
-                 * If we're close enough to a corner, call the wall creation scripts, and shift our sprite to start from that corner next
-                 */
-                if dist > ZOOM_LEVEL * 0.95 && dist < ZOOM_LEVEL * 1.2 {
-                    // Line is long enough that it could snap onto a valid point - check if we're at one
-                    if (loc_x / ZOOM_LEVEL < 0.06 || loc_x / ZOOM_LEVEL > 0.94) &&
-                       (loc_y / ZOOM_LEVEL < 0.06 || loc_y / ZOOM_LEVEL > 0.94) {
+                // TODO - adjust the sensitivity of the grid-snapping
+                if dist > ZOOM_LEVEL * 0.90 && dist < ZOOM_LEVEL * 1.2 {
+                    // Line is long enough that it could snap onto a valid point
+                    
+                    if (loc_x / ZOOM_LEVEL < 0.1 || loc_x / ZOOM_LEVEL > 0.9) &&
+                       (loc_y / ZOOM_LEVEL < 0.1 || loc_y / ZOOM_LEVEL > 0.9) {
                         // print!("Snapping line");
-                        let old_x = pos.x;
-                        let old_y = pos.y;
 
-                        // TODO - Force it to snap to the ZOOM_LEVEL grid rather than slight offsets
-                        pos.x = world_position.x as i32;
-                        pos.y = world_position.y as i32;
+                        let old_x = pos.x as f32;
+                        let old_y = pos.y as f32;
 
-                        // Write the new wall to the map
-                        mw.add_wall(old_x, old_y, pos.x, pos.y);
+                        
+                        pos.x = (((world_position.x + ZL /2.) / ZL).round() * ZL - ZL / 2.) as i32;
+                        pos.y = (((world_position.y + ZL /2.) / ZL).round() * ZL - ZL / 2.) as i32;
+
+                        // Write the new wall to the map (Convert the coordinates)
+                        
+                        // Man, flipping between int/float is fun
+                        mw.add_wall(
+                            ((old_x + ZL /2.) / ZL) as i32,
+                            ((old_y + ZL /2.) / ZL) as i32,
+                            ((pos.x as f32 + ZL /2.) / ZL) as i32,
+                            ((pos.y as f32 + ZL /2.) / ZL) as i32,
+                        );
 
                         // Trigger RenderMap state so the wall gets shown
                         next_state.set(MapBuildState::RenderMap);

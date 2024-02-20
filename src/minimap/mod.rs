@@ -48,7 +48,7 @@ impl WallGrid {
     pub fn wall_index(&self, x1:i32, y1:i32, x2:i32, y2:i32) -> Result<usize, String> {
         // Error handling: Invalid Line, Dest out of Bounds, 
 
-        if x1-x2 + y1-y2 != 1 {
+        if (x1-x2).abs() + (y1-y2).abs() != 1 {
             // Distance is not equal to 1 - cannot create a new line
             return Err(String::from("Invalid Line"))
         }
@@ -58,6 +58,7 @@ impl WallGrid {
             return Err(String::from("Coordinate out of bounds"))
         }
 
+        println!("Valid line; dim_x: {}  dim_y: {}", self.dim_x, self.dim_y);
         // Line is valid - translate to the Vector positions
         let x_diff = x1 - x2;
         let y_diff = y1 - y2;
@@ -274,7 +275,7 @@ pub fn coord_to_grid_wall(x: f32, y: f32) -> (i32, i32, f32) {
 
 // Centralizing the const vars that components are using, mainly because some will likely become dynamic
 const ZOOM_LEVEL: f32 = 16.0; // Number of pixels a tile occupies
-
+const ZL: f32 = ZOOM_LEVEL;
 
 
 
