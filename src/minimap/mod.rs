@@ -95,10 +95,9 @@ impl WallGrid {
     // If wall already existed - just overrides with a new default wall
     pub fn add_wall(&mut self, x1:i32, y1:i32, x2:i32, y2:i32){
         // Unpack result of wall_index (If we get out of bounds, handle it)
-        println!("Args: {}, {}, {}, {}", x1, y1, x2, y2);
         if let Ok(wall_loc) = self.wall_index(x1, y1, x2, y2){
             // Update entry in WallGrid
-            print!("New walls have been added");
+            
             self.walls[wall_loc] = Wall {vis:true, pres: true};
         }
         else {
