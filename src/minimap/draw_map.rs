@@ -48,7 +48,6 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
             //Index will be x + h*(x+y+1)
             // Check if the wall is enabled or not
             let index =(h+x*(mw.dim_x+mw.dim_y+1)) as usize;
-            println!("{}", index); 
             if mw.walls[(h+x*(mw.dim_x+mw.dim_y+1)) as usize].pres == true {
                 commands.spawn((SpriteBundle{
                     sprite: Sprite { color: Color::ANTIQUE_WHITE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
