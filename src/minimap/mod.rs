@@ -52,8 +52,8 @@ impl WallGrid {
             // Distance is not equal to 1 - cannot create a new line
             return Err(String::from("Invalid Line"))
         }
-        if x1 > self.dim_x + 1 || x2 > self.dim_x + 1 || x1 < 0 || x2 < 0 
-         || y1 > self.dim_y + 1 || y2 > self.dim_y + 1 || y1 < 0 || y2 < 0 {
+        if x1 > self.dim_x || x2 > self.dim_x || x1 < 0 || x2 < 0 
+         || y1 > self.dim_y|| y2 > self.dim_y || y1 < 0 || y2 < 0 {
             // Start or End coordinate is outside of our map's vector
             return Err(String::from("Coordinate out of bounds"))
         }
@@ -65,20 +65,20 @@ impl WallGrid {
         let mut index = 0;
         match (x_diff, y_diff) {
             // Odd Rows 
-            (-1, 0) => { // Leftward
+            (1, 0) => { // Leftward
                  // Take Y coordinate, multiply by (x+y+1), add X - 1
                 index = (2 * self.dim_x + 1) * y1 + (x1 - 1);
             }, 
-            (1, 0) => { // Rightward
+            (-1, 0) => { // Rightward
                 // Take Y coordinate, multiply by (x+y+1), add current X
                 index = (2 * self.dim_x + 1) * y1 + (x1);
             }, 
             // Even Rows
-            (0, -1) => { // Downward
-                index = (2 * self.dim_x + 1) * y1 - 1 - self.dim_y - x1;
+            (0, 1) => { // Downward
+                index = (2 * self.dim_x + 1) * y1 - 1 - self.dim_y + x1;
 
             },
-            (0, 1) => { // Upward
+            (0, -1) => { // Upward
                 index = (2 * self.dim_x + 1) * y1 + self.dim_y + x1;
  
             }, 
@@ -86,7 +86,7 @@ impl WallGrid {
                 return Err(String::from("Unknown Match case in WallGrid"))
             }
         };
-        print!("Wall added {}", index);
+        println!("Wall added {}", index);
         Ok(index as usize)
 
     }

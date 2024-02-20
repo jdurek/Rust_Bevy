@@ -84,8 +84,8 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
 
 // Builds a grid and walls
 pub fn build_init(mut commands: Commands){
-    let mg = MapGrid::new(16,16);
-    let wg = WallGrid::new(16,16);
+    let mg = MapGrid::new(2,2);
+    let wg = WallGrid::new(2,2);
     commands.insert_resource(mg);
     commands.insert_resource(wg);
 }
