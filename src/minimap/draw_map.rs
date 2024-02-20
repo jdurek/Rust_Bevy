@@ -115,6 +115,7 @@ pub fn mouse_wall_gui(
     map_cam: Query<(&Camera, &GlobalTransform)>,  //TODO - adjust when more cameras are added
     mut draw_line: Query<(&DragLine, &mut Transform, &mut Position, Entity)>,
     mut next_state: ResMut<NextState<MapBuildState>>,
+    mut mw: ResMut<WallGrid>,
 ) {
     // Fetch camera information
     let (camera, camera_transform) = map_cam.single();
@@ -149,6 +150,7 @@ pub fn mouse_wall_gui(
                (loc_y / ZOOM_LEVEL < 0.2 || loc_y / ZOOM_LEVEL > 0.8) 
             {
                 println!("Close enough to a corner!");
+                // TODO - snap the start_x and _y values to the corner itself (Multiple of ZOOM_LEVEL)
                 start_x = world_position.x;
                 start_y = world_position.y;
 
@@ -212,15 +214,22 @@ pub fn mouse_wall_gui(
                  * Reuse the just-pressed corner detection (with a little more precision)
                  * If we're close enough to a corner, call the wall creation scripts, and shift our sprite to start from that corner next
                  */
-                if dist > ZOOM_LEVEL * 0.95 {
+                if dist > ZOOM_LEVEL * 0.95 && dist < ZOOM_LEVEL * 1.2 {
                     // Line is long enough that it could snap onto a valid point - check if we're at one
                     if (loc_x / ZOOM_LEVEL < 0.06 || loc_x / ZOOM_LEVEL > 0.94) &&
                        (loc_y / ZOOM_LEVEL < 0.06 || loc_y / ZOOM_LEVEL > 0.94) {
-                        print!("Snapping line");
+                        // print!("Snapping line");
+                        let old_x = pos.x;
+                        let old_y = pos.y;
+
+                        // TODO - Force it to snap to the ZOOM_LEVEL grid rather than slight offsets
                         pos.x = world_position.x as i32;
                         pos.y = world_position.y as i32;
 
-                        // Trigger RenderMap state
+                        // Write the new wall to the map
+                        mw.add_wall(old_x, old_y, pos.x, pos.y);
+
+                        // Trigger RenderMap state so the wall gets shown
                         next_state.set(MapBuildState::RenderMap);
                     }
                 }
