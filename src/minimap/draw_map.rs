@@ -10,8 +10,13 @@ use crate::{components::Position, minimap::*, resources::*, };
 // Component is only for query lookup
 #[derive(Component)]
 pub struct DragLine;
+
 #[derive(Component)]
-pub struct LineCoords;
+pub struct MapCellSprite;
+#[derive(Component)]
+pub struct MapWallSprite;
+#[derive(Component)]
+pub struct MapCellIcon;
 
 // Draws only the grid
 pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
@@ -20,7 +25,7 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
             let index = coord_to_grid(x as f32, y as f32);
             // Using the tile at index, render on the map - 
             // For now, all tiles will render the same regardless of type, add a match statement later
-            commands.spawn(SpriteBundle{
+            commands.spawn((SpriteBundle{
                 sprite: Sprite { color: Color::TURQUOISE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
                 visibility: Visibility::Visible,
                 transform: Transform {
@@ -29,7 +34,8 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
                     ..default()
                 },
                 ..Default::default()
-            });
+            }, 
+            MapCellSprite,));
         }
     }
 }
@@ -42,7 +48,7 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
             //Index will be x + h*(x+y+1)
             // Check if the wall is enabled or not
             if mw.walls[(x+h*(mw.dim_x+mw.dim_y+1)) as usize].pres == true {
-                commands.spawn(SpriteBundle{
+                commands.spawn((SpriteBundle{
                     sprite: Sprite { color: Color::ANTIQUE_WHITE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
                     visibility: Visibility::Visible,
                     transform: Transform {
@@ -51,7 +57,8 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
                         ..default()
                     },
                     ..Default::default()
-                });
+                }, 
+                MapWallSprite,));
             }
         }
     }
@@ -91,6 +98,14 @@ pub fn render_map(
     next_state.set(MapBuildState::Drawing);
 }
 
+
+// Generic despawner for any component marker we come up with later
+pub fn despawn_system<M: Component>(mut commands: Commands, query: Query<Entity, With<M>>) {
+    query.for_each(|entity| {
+        commands.entity(entity).despawn();
+    });
+}
+
 // Experimenting with drawing a wall - starts by finding initial coordinate - 
 pub fn mouse_wall_gui(
     mut commands: Commands,
@@ -99,6 +114,7 @@ pub fn mouse_wall_gui(
     // Reference to our Camera so we can translate to world coordinates
     map_cam: Query<(&Camera, &GlobalTransform)>,  //TODO - adjust when more cameras are added
     mut draw_line: Query<(&DragLine, &mut Transform, &mut Position, Entity)>,
+    mut next_state: ResMut<NextState<MapBuildState>>,
 ) {
     // Fetch camera information
     let (camera, camera_transform) = map_cam.single();
@@ -196,17 +212,18 @@ pub fn mouse_wall_gui(
                  * Reuse the just-pressed corner detection (with a little more precision)
                  * If we're close enough to a corner, call the wall creation scripts, and shift our sprite to start from that corner next
                  */
-                // if dist > ZOOM_LEVEL * 0.95 {
-                //     // Line is long enough that it could snap onto a valid point - check if we're at one
-                //     if (loc_x / ZOOM_LEVEL < 0.06 || loc_x / ZOOM_LEVEL > 0.94) &&
-                //        (loc_y / ZOOM_LEVEL < 0.06 || loc_y / ZOOM_LEVEL > 0.94) {
-                //         print!("Snapping line");
-                //         pos.x = loc_x as i32;
-                //         pos.y = loc_y as i32;
+                if dist > ZOOM_LEVEL * 0.95 {
+                    // Line is long enough that it could snap onto a valid point - check if we're at one
+                    if (loc_x / ZOOM_LEVEL < 0.06 || loc_x / ZOOM_LEVEL > 0.94) &&
+                       (loc_y / ZOOM_LEVEL < 0.06 || loc_y / ZOOM_LEVEL > 0.94) {
+                        print!("Snapping line");
+                        pos.x = world_position.x as i32;
+                        pos.y = world_position.y as i32;
 
-                //         // update state to RenderMap after drawing our 'update'
-                //     }
-                // }
+                        // Trigger RenderMap state
+                        next_state.set(MapBuildState::RenderMap);
+                    }
+                }
 
                 if dist < ZOOM_LEVEL {
                     transf.scale.x = dist;
