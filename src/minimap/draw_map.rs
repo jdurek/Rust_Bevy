@@ -3,6 +3,7 @@
     Also handles some setup needed for the UI drawing
 */
 
+use bevy::prelude::*;
 use bevy::ecs::world;
 use bracket_lib::color::BLACK;
 
@@ -18,6 +19,9 @@ pub struct MapCellSprite;
 pub struct MapWallSprite;
 #[derive(Component)]
 pub struct MapCellIcon;
+
+#[derive(Component)]
+pub struct SelectedOption;
 
 // Draws only the grid
 pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
@@ -356,4 +360,19 @@ pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>){
                 ;
         });
     });
+}
+
+pub fn menu_button_system(
+    mut interact_query: Query<
+        (&Interaction, &mut BackgroundColor, Option<&SelectedOption>),
+        (Changed<Interaction>, With<Button>),
+    >,
+) {
+    for (interaction, mut color, selected) in &mut interact_query {
+        // *color = match(*interaction, selected) {
+        //     // Match to the different interaction cases - need to define the colors used in advance
+
+        //     (Interaction::None, None) => NORMAL_BUTTON.into()
+        // }
+    }
 }
