@@ -62,6 +62,7 @@ fn main() {
     // .init_state::<MapBuildState>()   // Seems like Bevy .13 uses this instead of add_state
 
     .add_systems(Startup, minimap_setup)
+    .add_systems(Startup, menu_setup)
     
     // .add_systems(OnEnter(MapBuildState::LoadingMap), systems)
     // TODO - figure out a cleaner way to move between states - for now, render_map func just handles the state swap

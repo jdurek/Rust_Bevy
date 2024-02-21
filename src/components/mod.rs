@@ -19,3 +19,12 @@ pub struct Renderable {
     pub visible: bool,
     // pub glyph: rltk::FontCharType,
 }
+
+#[derive(Component)]
+pub enum MenuButtonActions {
+    New,
+    Save,
+    Load,
+    Undo,
+    Redo,
+}
