@@ -23,7 +23,7 @@ pub struct MapCellIcon;
 #[derive(Component)]
 pub struct SelectedOption;
 
-// Draws only the grid
+// Renders only the grid
 pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
     for y in 0..mg.dim_y {
         for x in 0..mg.dim_x {
@@ -45,7 +45,7 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
     }
 }
 
-// Draws only the walls, this goes on top of the map's grid (Or under it?)
+// Renders only the walls, this goes on top of the map's grid (Or under it?)
 pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
     // Iterating over wall-grid means we flip between horizontal and vertical walls
     for x in 0..mw.dim_x + 1 {
@@ -88,13 +88,6 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
     
 }
 
-// Builds a grid and walls
-pub fn build_init(mut commands: Commands){
-    let mg = MapGrid::new(8,8);
-    let wg = WallGrid::new(8,8);
-    commands.insert_resource(mg);
-    commands.insert_resource(wg);
-}
 
 // Simple function to handle moving out of the render state
 pub fn render_map(
@@ -112,6 +105,8 @@ pub fn despawn_system<M: Component>(mut commands: Commands, query: Query<Entity,
     });
 }
 
+
+// TODO - figure out if I want to move this to a new file - It does render sprites, so being in this one makes sense
 // Experimenting with drawing a wall - starts by finding initial coordinate - 
 pub fn mouse_wall_gui(
     mut commands: Commands,
@@ -290,89 +285,4 @@ pub fn mouse_wall_gui(
     }
 
     
-}
-
-
-// Function for the menu pane on the left side of the window
-pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>){
-    let btn_style = Style{
-        width: Val::Px(150.),
-        height: Val::Px(50.),
-        align_items: AlignItems::Center,
-        ..default()
-    };
-    let btn_icon_style = Style{
-        width: Val::Px(30.),
-        position_type: PositionType::Absolute,
-        left: Val::Px(10.),
-        ..default()
-    };
-    let btn_text_style = TextStyle{
-        font_size: 20.0,
-        color: Color::BLACK,
-        ..default()
-    };
-
-    // Menu items will all be children to a larger bundle (for grouping)
-    commands
-        .spawn((NodeBundle {
-            style: Style{
-                width: Val::Percent(100.),
-                height: Val::Percent(100.),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                ..default()
-            },
-            ..default()
-        }))
-        .with_children(|parent| {
-            parent
-                // Background of the menu grouping
-                .spawn(NodeBundle{
-                    style: Style{ 
-                        flex_direction: FlexDirection::Column,
-                        align_items: AlignItems::Center,
-                        position_type: PositionType::Absolute,
-                        left: Val::Px(0.),
-                        top: Val::Px(0.),
-                        bottom: Val::Px(0.),
-                        ..default()
-                    },
-                    background_color: Color::CRIMSON.into(),
-                    ..default()
-                })
-                .with_children(|parent| {
-                    // Display header of the menu
-                    parent.spawn(TextBundle::from_section("MapBuilder Tool v.0", btn_text_style.clone()));
-                    parent
-                        .spawn((ButtonBundle {
-                            style: btn_style.clone(),
-                            background_color: Color::GRAY.into(),
-                            ..default()
-                        },
-                        MenuButtonActions::Save,
-                        ))
-                        .with_children(|parent| {
-                            // Add icon with save floppy - reference https://github.com/bevyengine/bevy/blob/latest/examples/games/game_menu.rs#L459
-                            parent.spawn(TextBundle::from_section("Save Map", btn_text_style.clone(),
-                    ));
-                })
-                ;
-        });
-    });
-}
-
-pub fn menu_button_system(
-    mut interact_query: Query<
-        (&Interaction, &mut BackgroundColor, Option<&SelectedOption>),
-        (Changed<Interaction>, With<Button>),
-    >,
-) {
-    for (interaction, mut color, selected) in &mut interact_query {
-        // *color = match(*interaction, selected) {
-        //     // Match to the different interaction cases - need to define the colors used in advance
-
-        //     (Interaction::None, None) => NORMAL_BUTTON.into()
-        // }
-    }
 }

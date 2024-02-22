@@ -56,7 +56,7 @@ fn minimap_setup(mut commands: Commands, asset_server: Res<AssetServer>){
     
     commands.spawn((camera, MainCamera));
 
-    minimap::draw_map::build_init(commands);
+    minimap::build_init(commands);
 }
 
 fn main() {

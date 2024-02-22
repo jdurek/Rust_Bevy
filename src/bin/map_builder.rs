@@ -41,7 +41,7 @@ fn minimap_setup(mut commands: Commands, asset_server: Res<AssetServer>){
     
     commands.spawn((camera, MainCamera));
 
-    bevy_roguelike::minimap::draw_map::build_init(commands);
+    bevy_roguelike::minimap::build_init(commands);
 }
 
 
@@ -70,5 +70,8 @@ fn main() {
     .add_systems(Update, (draw_grid, draw_wall, render_map).run_if(in_state(MapBuildState::RenderMap)))
     .add_systems(Update, mouse_wall_gui.run_if(in_state(MapBuildState::Drawing)))
     
+    // Following system is just for the menu selections (Highlight, OnClick of valid menu slot)
+    
+
     .run();
 }

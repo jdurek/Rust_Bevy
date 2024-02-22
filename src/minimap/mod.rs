@@ -5,6 +5,8 @@ use serde::*;
 
 pub mod draw_map;
 pub use draw_map::*;
+pub mod mb_menu;
+pub use mb_menu::*;
 
 #[derive(Component)]
 pub struct TileStruct;
@@ -255,6 +257,21 @@ impl MapGrid {
 
     // Given a line of 2 points, remove 'walls' from the relevant grid entries
 }
+
+
+// Initialization function for the initial map grid and wall grid (Game startup)
+//| Right now, they're treated as a resource rather than Entities, since only 1 map is loaded at any given time
+//| This may change down the line if certain maps need to be cached, although those might just become their own resources
+pub fn build_init(mut commands: Commands){
+    let mg = MapGrid::new(8,8);
+    let wg = WallGrid::new(8,8);
+    commands.insert_resource(mg);
+    commands.insert_resource(wg);
+}
+
+// Update function to replace the resource - needs a ResMut of the resources
+//| TODO - figure out what the function takes - do we want to provide a pointer to the new map?
+//| Or do we provide a path to the new map (Load from memory)?
 
 // Helper function to convert from floating point coordinate to pixel it's part of
 pub fn coord_to_grid(x: f32, y: f32) -> (i32, i32) {
