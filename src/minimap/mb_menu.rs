@@ -2,10 +2,36 @@
 
 
 use bevy::prelude::*;
-use bevy::ecs::world;
-use bracket_lib::color::BLACK;
 
 use crate::{components::*, minimap::*, resources::*, };
+
+
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+pub enum MBMenuState {
+    #[default]
+    Awaiting,
+    Save,
+    Load,
+    New,
+}
+
+const NORMAL_BUTTON: Color = Color::GRAY;
+const HOVERED_BUTTON: Color = Color::DARK_GRAY;
+const HOVERED_PRESSED: Color = Color::DARK_GREEN;
+const PRESSED_BUTTON: Color = Color::GREEN;
+
+
+// Plugin that manages the menu itself (Mainly state changes)
+pub fn menu_plugin(app: &mut App){
+    // TODO - move some of map_builder into this 
+    // Mainly for add_systems OnEnter() and OnExit() for specific states
+    app
+        .add_systems(OnEnter(MBMenuState::Save), save_gui)
+        // Add a system that checks to see if it's completed saving yet or not?
+        .add_systems(OnExit(MBMenuState::Save), save_complete)
+    
+    ;
+}
 
 // Function for the menu pane on the left side of the window
 pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>){
@@ -29,7 +55,7 @@ pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>){
 
     // Menu items will all be children to a larger bundle (for grouping)
     commands
-        .spawn((NodeBundle {
+        .spawn(NodeBundle {
             style: Style{
                 width: Val::Percent(100.),
                 height: Val::Percent(100.),
@@ -38,7 +64,7 @@ pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>){
                 ..default()
             },
             ..default()
-        }))
+        })
         .with_children(|parent| {
             parent
                 // Background of the menu grouping
@@ -83,10 +109,35 @@ pub fn menu_button_system(
     >,
 ) {
     for (interaction, mut color, selected) in &mut interact_query {
-        // *color = match(*interaction, selected) {
-        //     // Match to the different interaction cases - need to define the colors used in advance
-
-        //     (Interaction::None, None) => NORMAL_BUTTON.into()
-        // }
+        *color = match(*interaction, selected) {
+            // Match to the different interaction cases - need to define the colors used in advance
+            (Interaction::Pressed, _) | (Interaction::None, Some(_)) => PRESSED_BUTTON.into(),
+            (Interaction::Hovered, Some(_)) => HOVERED_PRESSED.into(),
+            (Interaction::Hovered, None) => HOVERED_BUTTON.into(),
+            (Interaction::None, None) => NORMAL_BUTTON.into(),
+        }
     }
 }
+
+// Handles bringing up the Save GUI/tools (Or just open the file explorer for saving)
+fn save_gui() {
+
+}
+
+// Cleanup anything we might need to after completing a save (Since we have to wait for it to completely save)
+fn save_complete() {
+
+}
+
+
+// Handles the LoadMap interface (Or just open the file explorer and await it to complete)
+// This will also need to either clean up the previous map, or have a toggle between them
+fn load_gui(){}
+// Clean up after load is complete
+fn load_complete(){}
+
+// Handles the NewMap interface (Very similar to load, just with some config steps like map size)
+fn new_gui(){}
+// Clean up after new is completed
+fn new_complete(){}
+

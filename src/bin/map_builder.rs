@@ -70,8 +70,8 @@ fn main() {
     .add_systems(Update, (draw_grid, draw_wall, render_map).run_if(in_state(MapBuildState::RenderMap)))
     .add_systems(Update, mouse_wall_gui.run_if(in_state(MapBuildState::Drawing)))
     
-    // Following system is just for the menu selections (Highlight, OnClick of valid menu slot)
-    
+    // Following system is just for the menu selections (Highlight, OnClick of valid menu slot) - will roll these into a plugin later
+    .add_systems(Update, menu_button_system)
 
     .run();
 }

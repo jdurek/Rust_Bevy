@@ -99,6 +99,7 @@ pub fn render_map(
 
 
 // Generic despawner for any component marker we come up with later
+// TODO - Transform this to be more map-specific (Cleanup, caching maps for faster load, etc...)
 pub fn despawn_system<M: Component>(mut commands: Commands, query: Query<Entity, With<M>>) {
     query.for_each(|entity| {
         commands.entity(entity).despawn();
