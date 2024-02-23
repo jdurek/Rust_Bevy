@@ -15,6 +15,7 @@ pub enum MBMenuState {
     New,
 }
 
+// Defining a few menu constants, mainly for hover/click colors
 const NORMAL_BUTTON: Color = Color::GRAY;
 const HOVERED_BUTTON: Color = Color::DARK_GRAY;
 const HOVERED_PRESSED: Color = Color::DARK_GREEN;
@@ -38,6 +39,7 @@ pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>){
     let btn_style = Style{
         width: Val::Px(150.),
         height: Val::Px(50.),
+        margin: UiRect::all(Val::Px(20.0)),
         align_items: AlignItems::Center,
         ..default()
     };
@@ -83,7 +85,10 @@ pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>){
                 })
                 .with_children(|parent| {
                     // Display header of the menu
+                    // TODO - figure out how to add a slight padding to this so it's not glued to the top
                     parent.spawn(TextBundle::from_section("MapBuilder Tool v.0", btn_text_style.clone()));
+                    
+                    // Save Button
                     parent
                         .spawn((ButtonBundle {
                             style: btn_style.clone(),
@@ -95,11 +100,48 @@ pub fn menu_setup(mut commands: Commands, asset_server: Res<AssetServer>){
                         .with_children(|parent| {
                             // Add icon with save floppy - reference https://github.com/bevyengine/bevy/blob/latest/examples/games/game_menu.rs#L459
                             parent.spawn(TextBundle::from_section("Save Map", btn_text_style.clone(),
-                    ));
+                            
+                            ));
+                        })
+                    ;
+
+                    // Load Button
+                    parent
+                        .spawn((ButtonBundle {
+                            style: btn_style.clone(),
+                            background_color: Color::GRAY.into(),
+                            ..default()
+                        },
+                        MenuButtonActions::Load,
+                        ))
+                        .with_children(|parent| {
+                            // Add icon with save floppy - reference https://github.com/bevyengine/bevy/blob/latest/examples/games/game_menu.rs#L459
+                            parent.spawn(TextBundle::from_section("Load Map", btn_text_style.clone(),
+                            
+                            ));
+                        })
+                    ;
+
+                    // New Button
+                    parent
+                        .spawn((ButtonBundle {
+                            style: btn_style.clone(),
+                            background_color: Color::GRAY.into(),
+                            ..default()
+                        },
+                        MenuButtonActions::New,
+                        ))
+                        .with_children(|parent| {
+                            // Add icon with save floppy - reference https://github.com/bevyengine/bevy/blob/latest/examples/games/game_menu.rs#L459
+                            parent.spawn(TextBundle::from_section("New Map", btn_text_style.clone(),
+                            
+                            ));
+                        })
+                    ;
                 })
-                ;
-        });
-    });
+            ;
+        })
+    ;
 }
 
 pub fn menu_button_system(
