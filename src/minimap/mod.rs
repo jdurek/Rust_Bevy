@@ -12,14 +12,14 @@ pub use mb_menu::*;
 pub struct TileStruct;
 
 // Alternate tile type - this one holds wall data as well for faster checks
-#[derive(Component, Clone, Serialize, Deserialize)]
+#[derive(Component, Serialize, Deserialize, Copy, Clone)]
 pub struct Tile {
     pub walls: (bool,bool,bool,bool), // Tuple representing the 4 directions (NSEW) and if we can move in those directions
     // pub kind: bool,
     // TODO - Turn kind into an enum for more features later
 }
 
-#[derive(Resource, Clone, Serialize, Deserialize)]
+#[derive(Resource, Serialize, Deserialize, Copy, Clone)]
 pub struct Wall {
     pub vis: bool,  // Is the wall visible yet (EG, render it or not)
     pub pres: bool, // Is there a wall?
@@ -27,7 +27,7 @@ pub struct Wall {
     // TODO - replace the bool above with an enum when adding more features
 }
 
-#[derive(Resource, Serialize, Deserialize)]
+#[derive(Resource, Serialize, Deserialize, Clone)]
 pub struct WallGrid {
     pub walls: Vec<Wall>,
     pub dim_x: i32,
@@ -122,7 +122,7 @@ impl WallGrid {
     }
 }
 
-#[derive(Resource, Serialize, Deserialize)]
+#[derive(Resource, Serialize, Deserialize, Clone)]
 pub struct MapGrid {
     pub tiles: Vec<Tile>,
     pub dim_x: i32,
@@ -258,6 +258,19 @@ impl MapGrid {
     // Given a line of 2 points, remove 'walls' from the relevant grid entries
 }
 
+#[derive(Serialize,Deserialize)]
+pub struct SavedMap {
+    pub w: WallGrid,
+    pub m: MapGrid,
+}
+
+impl SavedMap{
+    // TODO - implement Clone or similar on WallGrid and MapGrid
+    // The original should remain where it is, while these are a clone written to file
+    pub fn new(w: WallGrid, m: MapGrid) -> SavedMap{
+        SavedMap{w: w, m: m}
+    }
+}
 
 // Initialization function for the initial map grid and wall grid (Game startup)
 //| Right now, they're treated as a resource rather than Entities, since only 1 map is loaded at any given time

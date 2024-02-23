@@ -1,6 +1,8 @@
 // Contains all the functions/setup for the minimap builder tool's menu
 
 
+use std::io::BufWriter;
+
 use bevy::prelude::*;
 
 use crate::{components::*, minimap::*, resources::*, };
@@ -190,14 +192,50 @@ pub fn menu_action(
     }
 }
 
+// TODO - Wrap this within a Result() so we can do error-handling better if needed
 // Handles bringing up the Save GUI/tools (Or just open the file explorer for saving)
-fn save_gui() {
+fn save_gui(
+    mut commands: Commands,
+    mg: Res<MapGrid>,
+    mw: Res<WallGrid>,
+) {
+    // Experimenting with RFD - do I need Async, or can I just wait since I don't need to simulate anything?
+    // For the map-builder, doing non-async is probably fine for the initial mockup
+    use rfd::FileDialog;
+    use std::fs::File;
+    use std::io::Write;
+    use std::path::PathBuf;
 
+    
+    // TODO - Figure out this section - 
+    // Idea is to open a GUI and use save_file to get us a path to a newly created file
+    // Using RFD for native GUI access, trying to figure out Serde write to the file we just got, since we have a PathBuf
+    let file = FileDialog::new()
+        .add_filter("text", &["txt"])
+        .add_filter("data", &[".json", ".xml"])
+        .set_directory("/")
+        .save_file();
+
+    // Once user has picked a file out, write the MapGrid and WallGrid to the file
+    let map_data: SavedMap = SavedMap::new(mw.as_ref().clone(), mg.as_ref().clone());
+    let map_string = serde_json::to_string(&map_data);
+
+    if let Some(path) = file {
+        
+        // let mut writer = BufWriter::new(path);
+        // serde_json::to_writer(&mut writer, &vec);
+        // writer.flush();
+    }
+    
+    
 }
 
 // Cleanup anything we might need to after completing a save (Since we have to wait for it to completely save)
-fn save_complete() {
-
+fn save_complete(
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<MBMenuState>>,
+) {
+    next_state.set(MBMenuState::Awaiting);
 }
 
 
