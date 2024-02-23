@@ -192,7 +192,8 @@ pub fn menu_action(
     }
 }
 
-// TODO - Wrap this within a Result() so we can do error-handling better if needed
+// TODO - Wrap this within a Result<>? May need a separate function that calls this one handling results
+// due to how bevy doesn't seem to like getting a result<()> returned
 // Handles bringing up the Save GUI/tools (Or just open the file explorer for saving)
 fn save_gui(
     mut commands: Commands,
@@ -213,18 +214,20 @@ fn save_gui(
     let file = FileDialog::new()
         .add_filter("text", &["txt"])
         .add_filter("data", &[".json", ".xml"])
-        .set_directory("/")
+        .set_directory(std::env::current_dir().unwrap())
         .save_file();
 
     // Once user has picked a file out, write the MapGrid and WallGrid to the file
     let map_data: SavedMap = SavedMap::new(mw.as_ref().clone(), mg.as_ref().clone());
     let map_string = serde_json::to_string(&map_data);
 
-    if let Some(path) = file {
+    if let Some(route) = file {
+        // File was just created, so this shouldn't panic - add error handling in case it does though later
+        let mut file = File::open(route).unwrap();
         
-        // let mut writer = BufWriter::new(path);
-        // serde_json::to_writer(&mut writer, &vec);
-        // writer.flush();
+        let mut writer = BufWriter::new(file);
+        let w = serde_json::to_writer(&mut writer, &map_data);
+        writer.flush();
     }
     
     
