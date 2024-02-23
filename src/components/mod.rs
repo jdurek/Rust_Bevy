@@ -20,7 +20,7 @@ pub struct Renderable {
     // pub glyph: rltk::FontCharType,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub enum MenuButtonActions {
     New,
     Save,

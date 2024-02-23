@@ -161,6 +161,35 @@ pub fn menu_button_system(
     }
 }
 
+pub fn menu_action(
+    interaction_query: Query<(&Interaction, &MenuButtonActions), (Changed<Interaction>, With<Button>)>,
+    mut menu_state: ResMut<NextState<MBMenuState>>,
+    
+){
+    for(interaction, menu_button_action) in &interaction_query {
+        if *interaction == Interaction::Pressed{
+            match menu_button_action{
+                MenuButtonActions::Save => {
+                    // Serialize the map data into a string (eventually, a file or DB store)
+                    // The WallGrid and MapGrid have the appropiate labels, so we can serialize them
+                    menu_state.set(MBMenuState::Save);
+                }
+                MenuButtonActions::New => {
+                    // First, do a warning pop-up to make sure the user's sure they want to start anew
+                    // To do this, we'll change state into New and just handle it within that
+
+                    // For now, we'll just reset the map without any warnings and add that safeguard later
+                    menu_state.set(MBMenuState::New);
+                }
+                _ => {
+                    // Unimplemented case
+                    println!("{:?} has not been implemented yet!", menu_button_action);
+                }
+            }
+        }
+    }
+}
+
 // Handles bringing up the Save GUI/tools (Or just open the file explorer for saving)
 fn save_gui() {
 
