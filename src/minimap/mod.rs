@@ -60,7 +60,7 @@ impl WallGrid {
             return Err(String::from("Coordinate out of bounds"))
         }
 
-        println!("Valid line; dim_x: {}  dim_y: {}", self.dim_x, self.dim_y);
+        // println!("Valid line; dim_x: {}  dim_y: {}", self.dim_x, self.dim_y);
         // Line is valid - translate to the Vector positions
         let x_diff = x1 - x2;
         let y_diff = y1 - y2;
@@ -88,7 +88,7 @@ impl WallGrid {
                 return Err(String::from("Unknown Match case in WallGrid"))
             }
         };
-        println!("Wall added {}", index);
+        // println!("Wall added {}", index);
         Ok(index as usize)
 
     }

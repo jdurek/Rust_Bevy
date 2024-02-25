@@ -195,7 +195,7 @@ pub fn menu_action(
 // TODO - Wrap this within a Result<>? May need a separate function that calls this one handling results
 // due to how bevy doesn't seem to like getting a result<()> returned
 // Handles bringing up the Save GUI/tools (Or just open the file explorer for saving)
-fn save_gui(
+pub fn save_gui(
     mut commands: Commands,
     mg: Res<MapGrid>,
     mw: Res<WallGrid>,
@@ -203,17 +203,17 @@ fn save_gui(
     // Experimenting with RFD - do I need Async, or can I just wait since I don't need to simulate anything?
     // For the map-builder, doing non-async is probably fine for the initial mockup
     use rfd::FileDialog;
-    use std::fs::File;
+    use std::fs::*;
     use std::io::Write;
     use std::path::PathBuf;
 
-    
+    println!("Attempting to save current map...");
     // TODO - Figure out this section - 
     // Idea is to open a GUI and use save_file to get us a path to a newly created file
     // Using RFD for native GUI access, trying to figure out Serde write to the file we just got, since we have a PathBuf
     let file = FileDialog::new()
         .add_filter("text", &["txt"])
-        .add_filter("data", &[".json", ".xml"])
+        .add_filter("data", &["json", "xml"])
         .set_directory(std::env::current_dir().unwrap())
         .save_file();
 
@@ -221,20 +221,26 @@ fn save_gui(
     let map_data: SavedMap = SavedMap::new(mw.as_ref().clone(), mg.as_ref().clone());
     let map_string = serde_json::to_string(&map_data);
 
+    // Note - The file isn't actually created in the FileDialog - we do get an absolute path 
+    // just call File::create
+    
     if let Some(route) = file {
-        // File was just created, so this shouldn't panic - add error handling in case it does though later
-        let mut file = File::open(route).unwrap();
+        
+        let file = File::create(route).unwrap();
         
         let mut writer = BufWriter::new(file);
         let w = serde_json::to_writer(&mut writer, &map_data);
-        writer.flush();
+        let res = writer.flush();
     }
+
+    println!("Map saved!");
+    
     
     
 }
 
 // Cleanup anything we might need to after completing a save (Since we have to wait for it to completely save)
-fn save_complete(
+pub fn save_complete(
     mut commands: Commands,
     mut next_state: ResMut<NextState<MBMenuState>>,
 ) {

@@ -59,6 +59,7 @@ fn main() {
         }))
     
     .add_state::<MapBuildState>()
+    .add_state::<MBMenuState>()
     // .init_state::<MapBuildState>()   // Seems like Bevy .13 uses this instead of add_state
 
     .add_systems(Startup, minimap_setup)
@@ -72,6 +73,8 @@ fn main() {
     
     // Following system is just for the menu selections (Highlight, OnClick of valid menu slot) - will roll these into a plugin later
     .add_systems(Update, menu_button_system)
+    .add_systems(Update, menu_action)
+    .add_systems(OnEnter(MBMenuState::Save), (save_gui, save_complete))
 
     .run();
 }
