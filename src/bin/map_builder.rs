@@ -73,7 +73,8 @@ fn main() {
     // Following system is just for the menu selections (Highlight, OnClick of valid menu slot) - will roll these into a plugin later
     .add_systems(Update, menu_button_system)
     .add_systems(Update, menu_action)
-    .add_systems(OnEnter(MBMenuState::Save), (save_gui, save_complete))
+    .add_systems(OnEnter(MBMenuState::Save), save_gui)
+    .add_systems(OnEnter(MBMenuState::Save), save_complete.after(save_gui))
 
     .run();
 }
