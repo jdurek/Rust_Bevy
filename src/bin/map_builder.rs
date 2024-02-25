@@ -9,7 +9,6 @@ New Binary File
         Hot-testing map (Load the map in game engine)
 */
 
-use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
 
