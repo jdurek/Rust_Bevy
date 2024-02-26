@@ -1,6 +1,11 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
+pub mod party;
+pub use party::*;
+pub mod player;
+pub use player::*;
+
 // Exposes most generic components that might be shared among multiple modules
 
 
@@ -20,6 +25,14 @@ pub struct Renderable {
     // pub glyph: rltk::FontCharType,
 }
 
+// Simple component that lets us query parties or units involved in combat more quickly
+#[derive(Component, Clone, Serialize, Deserialize)]
+pub struct InCombat;
+
+
+
+
+// TODO - move this enum to the menu modules
 #[derive(Component, Debug)]
 pub enum MenuButtonActions {
     New,

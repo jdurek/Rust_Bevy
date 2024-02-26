@@ -52,3 +52,13 @@ pub enum MapBuildState {
     SavingMap,
     Drawing,
 }
+
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+pub enum CombatState {
+    #[default]
+    EnteredCombat,
+    Planning,
+    Computing,
+    Executing,
+    ExitingCombat,  // Includes Fleeing and winning
+}
