@@ -25,6 +25,11 @@ pub struct Renderable {
     // pub glyph: rltk::FontCharType,
 }
 
+// Struct denoting something can be interacted with in the overworld (NPCs, items, etc...)
+// This is mainly for helping 'render' the interact prompt
+#[derive(Component, Clone, Serialize, Deserialize)]
+pub struct Interactable;
+
 // Simple component that lets us query parties or units involved in combat more quickly
 #[derive(Component, Clone, Serialize, Deserialize)]
 pub struct InCombat;

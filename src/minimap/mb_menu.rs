@@ -213,7 +213,7 @@ pub fn save_gui(
     // Using RFD for native GUI access, trying to figure out Serde write to the file we just got, since we have a PathBuf
     let file = FileDialog::new()
         .add_filter("text", &["txt"])
-        .add_filter("data", &["json", "xml"])
+        .add_filter("data", &["json"])
         .set_directory(std::env::current_dir().unwrap())
         .save_file();
 
@@ -251,9 +251,36 @@ pub fn save_complete(
 
 // Handles the LoadMap interface (Or just open the file explorer and await it to complete)
 // This will also need to either clean up the previous map, or have a toggle between them
-fn load_gui(){}
+fn load_gui(
+    mut commands: Commands,
+    mut mg: ResMut<MapGrid>,
+    mut mw: ResMut<WallGrid>,
+){
+    use rfd::FileDialog;
+    use std::fs::*;
+    use std::io::Write;
+    use std::path::PathBuf;
+
+    let file = FileDialog::new()
+        .add_filter("text", &["txt"])
+        .add_filter("data", &["json"])
+        .set_directory(std::env::current_dir().unwrap())
+        .pick_file();
+
+        if let Some(route) = file {
+            // Load mapdata into SavedMap with serde
+            // replace MapGrid and WallGrid with our new ones
+        }
+}
+
+
 // Clean up after load is complete
-fn load_complete(){}
+fn load_complete(
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<MBMenuState>>,
+){
+    next_state.set(MBMenuState::Awaiting);
+}
 
 // Handles the NewMap interface (Very similar to load, just with some config steps like map size)
 fn new_gui(){}

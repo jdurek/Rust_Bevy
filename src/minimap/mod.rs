@@ -264,12 +264,21 @@ pub struct SavedMap {
     pub m: MapGrid,
 }
 
+// All functions in here are intended for the save/load logic
 impl SavedMap{
-    // TODO - implement Clone or similar on WallGrid and MapGrid
-    // The original should remain where it is, while these are a clone written to file
     pub fn new(w: WallGrid, m: MapGrid) -> SavedMap{
         SavedMap{w: w, m: m}
     }
+    
+    pub fn get_wg(&self) -> WallGrid {
+        self.w.clone()
+    }
+
+    pub fn get_mg(&self) -> MapGrid {
+        self.m.clone()
+    }
+
+    
 }
 
 // Initialization function for the initial map grid and wall grid (Game startup)
@@ -299,6 +308,8 @@ pub fn coord_to_grid_wall(x: f32, y: f32) -> (i32, i32, f32) {
     let dist = (x - x.round()).abs() + (y - y.round()).abs();
     (x.round() as i32, y.round() as i32, dist)
 }
+
+
 
 
 
