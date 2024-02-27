@@ -19,26 +19,38 @@
 
 use crate::components::*;
 
-#[derive(Serialize, Deserialize, Clone)]
+
+/* List of common components I expect to use in conjunction with a Party
+    Position
+    InCombat
+    DisplaySprite (For showing on the map/game)
+*/
+#[derive(Component, Serialize, Deserialize, Clone)]
 pub struct Party {
-    pub loc: Position,
     pub name: String,
     pub reknown: i32,
-    pub members: Vec<Player>,
+    pub members: Vec<Option<Entity>>,   // Contains party members - can iterate over this to fetch entities instead of querying in some calls
 }
+
+// General idea is if a party is InCombat, we can query to find the 2 parties with InCombat, and fetch all entities involved from these 2 parties.
+
 
 // Initialize party with no members
 pub fn create_party(mut commands: Commands) {
 
 }
 
-// Initialize enemy party for fight
-pub fn create_enemy_party(
-    mut commands: Commands,
-    // Query the map/region to figure out which groups we can generate
+pub fn add_member(
+    mut commands: Commands, 
+    // Query our specific player entity somehow- how do we identify it?
+    // How would that entity get the component we're querying on? 
 ){
-    // Create Party struct - Only thing that's necessary is the members (List of enemies)
-    // Append the 'In combat' state for now (We only make an enemy party if we're fighting them)
-    
+
 }
 
+// NPCs would have a lot in common with party - needs access to dialogue tree
+// Some NPCs could join the party as guests, so they'd need their own stats
+pub struct NPC {
+    pub party: Party,
+    // pub dialogue_tree: Dialogue,
+}

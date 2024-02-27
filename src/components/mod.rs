@@ -29,6 +29,12 @@ pub struct Renderable {
 #[derive(Component, Clone, Serialize, Deserialize)]
 pub struct InCombat;
 
+// Component for attaching a Health parameter to anything -
+// Centralized here since some non-living things may need health 
+#[derive(Component, Clone, Serialize, Deserialize)]
+pub struct Health{
+    hp: i32,    // Could set it to unsigned int if we need more HP later
+}
 
 
 

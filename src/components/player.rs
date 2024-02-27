@@ -1,8 +1,8 @@
 /* Player.rs
- *  contains basic components a player entity would have
- *  Due to the design, this would be reused for everything that could fight
- *      Might be better to rename away from player to something else? 
- */
+*  contains basic components a player entity would have
+*  Due to the design, this would be reused for everything that could fight
+*      Might be better to rename away from player to something else? 
+*/
 
 
 // List of components to implement for the player entity - 
@@ -27,10 +27,22 @@
 
 use crate::components::*;
 
+// Only living things have Mana, and a player is a 'living thing' 
+#[derive(Component, Clone, Serialize, Deserialize)]
+pub struct Mana{
+    mp: i32,    // Could set it to unsigned int if we need more HP later
+}
+
  #[derive(Component, Serialize, Deserialize, Copy, Clone)]
- pub struct Player {
-    // health: Health,
-    // blue: Mana,
+pub struct Player {
     // skills: - TODO, figure out how to handle these
     
- }
+}
+
+
+// Creates and returns a player entity for us to use
+pub fn create_player(mut commands: Commands){
+    // Create player struct
+    // Append Health, Mana components
+    // 
+}
