@@ -31,7 +31,7 @@ struct MainCamera;
 #[derive(Component)]
 struct GUICamera;
 
-fn minimap_setup(mut commands: Commands, asset_server: Res<AssetServer>){
+fn minimap_setup(mut commands: Commands){
     let mut camera = Camera2dBundle::default();
     camera.projection.scale = 0.5;
     // Camera starts pointed at 0,0 coordinate (Middle of screen)

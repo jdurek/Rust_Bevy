@@ -1,10 +1,6 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-pub mod party;
-pub use party::*;
-pub mod player;
-pub use player::*;
 
 // Exposes most generic components that might be shared among multiple modules
 

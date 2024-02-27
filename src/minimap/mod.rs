@@ -1,12 +1,15 @@
 use bevy::window::PrimaryWindow;
 use bevy::prelude::*;
 use serde::*;
+use std::fs::*;
+use std::io::Read;
 // use crate::components::*;
 
 pub mod draw_map;
 pub use draw_map::*;
 pub mod mb_menu;
 pub use mb_menu::*;
+
 
 #[derive(Component)]
 pub struct TileStruct;
@@ -266,7 +269,7 @@ pub struct SavedMap {
 
 // All functions in here are intended for the save/load logic
 impl SavedMap{
-    pub fn new(w: WallGrid, m: MapGrid) -> SavedMap{
+    pub fn new(w: WallGrid, m: MapGrid) -> Self{
         SavedMap{w: w, m: m}
     }
     
@@ -278,7 +281,16 @@ impl SavedMap{
         self.m.clone()
     }
 
-    
+    pub fn create_from_file(path: String) -> Self{
+        // Attempt to open file from given path
+        // If it panics, it means our default map is inacessible (and likely all other maps)
+        let mut file = File::open(path).unwrap();
+        // let mut data = String::new();
+        // file.read_to_string(&mut data).unwrap();
+
+        let saved_map = serde_json::from_reader(file);
+        saved_map.unwrap()
+    }
 }
 
 // Initialization function for the initial map grid and wall grid (Game startup)
@@ -289,6 +301,18 @@ pub fn build_init(mut commands: Commands){
     let wg = WallGrid::new(8,8);
     commands.insert_resource(mg);
     commands.insert_resource(wg);
+}
+
+// Initialization function - Loads from file rather than a blank map
+pub fn build_from_file(mut commands: Commands, path: &str){
+    // File will have a SavedMap json - load into that, then load in the resources from it
+    // Just calls insert_resource since that overwrites the resource cleanly - May tweak later if we need to cache previous resource.
+    let map_data = SavedMap::create_from_file(path.to_string());
+    
+    // Use our clone functions so we can let insert_resource own the structs
+    commands.insert_resource(map_data.get_mg());
+    commands.insert_resource(map_data.get_wg());
+
 }
 
 // Update function to replace the resource - needs a ResMut of the resources
