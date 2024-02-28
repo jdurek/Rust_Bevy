@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 
 
 // Exposes most generic components that might be shared among multiple modules
-
+pub mod party;
+use party::*;
 
 // Most elements will typically have Z of 0, but sometimes something may be hidden in a tile on a different Z axis (Underground, Above)
 // Consider burrowing enemies or avian enemies - they might not be visible until you actually engage with them

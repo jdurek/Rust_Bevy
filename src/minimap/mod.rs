@@ -10,6 +10,8 @@ pub use draw_map::*;
 pub mod mb_menu;
 pub use mb_menu::*;
 
+use crate::components::Position;
+
 
 #[derive(Component)]
 pub struct TileStruct;
@@ -259,6 +261,32 @@ impl MapGrid {
     }
 
     // Given a line of 2 points, remove 'walls' from the relevant grid entries
+    // pub fn remove_walls(&mut self, x1:i32, y1:i32, x2:i32, y2:i32){};
+
+    // Validate if a 'movement' is possible given a coordinate and direction
+    pub fn validate_move(&self, pos: &Position, dir: i32) -> Result<bool, String> {
+        // TODO - replace dir with something more sensible - for now, just reference numpad position (2468)
+        match dir {
+            2 => { // Down
+                if pos.y <= 0{ Ok(false) }
+                else { Ok(true) }   // TODO - Check our current grid to see if there are walls blocking (Once that's implemented)
+            }
+            4 => { // Left
+                if pos.x <= 0 { Ok(false) }
+                else { Ok(true) }
+            }
+            6 => { // Up
+                if pos.y >= self.dim_y - 1{ Ok(false) }
+                else { Ok(true) }
+            }
+            8 => { // Right
+                if pos.x >= self.dim_x - 1 { Ok(false) }
+                else { Ok(true) }
+            }
+            _ => Err("Invalid direction provided".to_string())
+        }
+        
+    }
 }
 
 #[derive(Serialize,Deserialize)]

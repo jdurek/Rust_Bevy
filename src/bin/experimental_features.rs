@@ -20,9 +20,10 @@ mod prelude {
     pub use bevy_roguelike::components::*;
     pub use bevy_roguelike::resources::*;
     pub use bevy_roguelike::minimap::*;
+    pub use bevy_roguelike::components::party::*;
 }
 
-use bevy_roguelike::minimap;
+use bevy_roguelike::{components::party::party_movement_minimap, minimap};
 use prelude::*;
 
 
@@ -78,14 +79,17 @@ fn main() {
             ..Default::default()
         }))
     
+    // Loads map rendering pipeline - might change state to reflect rendering process
+    // TODO - bundle these up into a plugin? Should be doable in a sense.
     .add_state::<MapBuildState>()
-
+    .add_state::<GameplayState>()
     .add_systems(Startup, minimap_setup) 
 
     .add_systems(OnEnter(MapBuildState::RenderMap), (despawn_system::<MapCellSprite>, despawn_system::<MapWallSprite>))
     .add_systems(Update, (draw_grid, draw_wall, render_map).run_if(in_state(MapBuildState::RenderMap)))
     
-    
-    
+    // Loads in 'movable player' onto the map (Make use of the coordinate system), and sets up the 'exploring' state loop
+    .add_systems(OnEnter(GameplayState::Exploration), party_setup)
+    .add_systems(Update, party_movement_minimap.run_if(in_state(GameplayState::Exploration)))
     .run();
 }

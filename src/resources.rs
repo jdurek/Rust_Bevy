@@ -35,10 +35,10 @@ pub enum MenuState {
 // A quick way for us to 'disable' exploration-based ticks if it's not tied to the grid movement, or just prevent inputs from registering
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum GameplayState {
-    #[default]
-    MainMenu,
-    Menu,
+    #[default] // Normally MainMenu, but is swapped for testing
     Exploration,
+    Menu,
+    MainMenu,
     Dialogue,
     Cutscene,
 }
