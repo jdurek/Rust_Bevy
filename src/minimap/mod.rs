@@ -14,10 +14,10 @@ use crate::components::Position;
 
 
 #[derive(Component)]
-pub struct TileStruct;
+pub struct TileComp;
 
 // Alternate tile type - this one holds wall data as well for faster checks
-#[derive(Component, Serialize, Deserialize, Copy, Clone)]
+#[derive(Serialize, Deserialize, Copy, Clone)]
 pub struct Tile {
     pub walls: [bool; 4], // Tuple representing the 4 directions (NSEW) and if we can move in those directions
     // pub kind: bool,
@@ -237,7 +237,7 @@ impl MapGrid {
             // Since the grid_index function returned fine, we don't need to validate
             let x_diff = x1 - x2;
             let y_diff = y1 - y2;
-            println!("{}{}, {}{}",x_diff, y_diff, grids[0], grids[1]);
+            // println!("{}{}, {}{}",x_diff, y_diff, grids[0], grids[1]);
             
             match (x_diff, y_diff) {
                 (-1, 0) | (1,0) => {    // Horizontal wall - bottom cell/top cell format
@@ -273,7 +273,8 @@ impl MapGrid {
         // println!("Walls have been added");
     }
 
-    // Given a line of 2 points, remove 'walls' from the relevant grid entries
+
+    // Given a line of 2 points, remove 'walls' from the relevant grid entries - just reuse add_walls code above
     // pub fn remove_walls(&mut self, x1:i32, y1:i32, x2:i32, y2:i32){};
 
     // Validate if a 'movement' is possible given a coordinate and direction
