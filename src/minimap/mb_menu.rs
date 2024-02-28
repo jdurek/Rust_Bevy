@@ -212,7 +212,6 @@ pub fn save_gui(
     // Idea is to open a GUI and use save_file to get us a path to a newly created file
     // Using RFD for native GUI access, trying to figure out Serde write to the file we just got, since we have a PathBuf
     let file = FileDialog::new()
-        .add_filter("text", &["txt"])
         .add_filter("data", &["json"])
         .set_directory(std::env::current_dir().unwrap())
         .save_file();

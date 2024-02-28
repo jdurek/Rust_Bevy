@@ -243,21 +243,21 @@ impl MapGrid {
                 (-1, 0) | (1,0) => {    // Horizontal wall - bottom cell/top cell format
                     if grids[0] != -1 {
                         // Bottom cell is valid, update 'Top Wall'
-                        self.tiles[grids[0] as usize].walls[3] = true;
+                        self.tiles[grids[0] as usize].walls[UP] = true;
                     }
                     if grids[1] != -1 {
                         // Top cell is valid, update 'Bottom Wall'
-                        self.tiles[grids[1] as usize].walls[0] = true;
+                        self.tiles[grids[1] as usize].walls[DOWN] = true;
                     }
                 }, 
                 (0, -1) | (0, 1) => {    // Vertical wall - left cell/right cell format
                     if grids[0] != -1 {
                         // Left cell is valid, update 'Right Wall'
-                        self.tiles[grids[0] as usize].walls[2] = true;
+                        self.tiles[grids[0] as usize].walls[RIGHT] = true;
                     }
                     if grids[1] != -1 {
                         // Right cell is valid, update 'Left Wall'
-                        self.tiles[grids[1] as usize].walls[1] = true;
+                        self.tiles[grids[1] as usize].walls[LEFT] = true;
                     }
                 }
                 // (0,1) => {      // Downard - left cell, right cell
@@ -280,22 +280,23 @@ impl MapGrid {
     // Validate if a 'movement' is possible given a coordinate and direction
     pub fn validate_move(&self, pos: &Position, dir: i32) -> Result<bool, String> {
         // TODO - replace dir with something more sensible - for now, just reference numpad position (2468)
-        println!("{}, {} | {}, {}", pos.x, pos.y, self.dim_y, self.dim_x);
+        // println!("{}, {} | {}, {}", pos.x, pos.y, self.dim_y, self.dim_x);
+        let cur_grid = self.tiles[self.xy_index(pos.x, pos.y) as usize];
         match dir {
             2 => { // Down
-                if pos.y <= 0{ Ok(false) }
-                else { Ok(true) }   // TODO - Check our current grid to see if there are walls blocking (Once that's implemented)
+                if pos.y <= 0 || cur_grid.walls[DOWN] == true { Ok(false) }
+                else { Ok(true) }  
             }
             4 => { // Left
-                if pos.x <= 0 { Ok(false) }
+                if pos.x <= 0 || cur_grid.walls[LEFT] == true { Ok(false) }
                 else { Ok(true) }
             }
             6 => { // Right
-                if pos.x >= (self.dim_x - 1) { Ok(false) }
+                if pos.x >= (self.dim_x - 1) || cur_grid.walls[RIGHT] == true { Ok(false) }
                 else { Ok(true) }
             }
             8 => { // Up
-                if pos.y >= (self.dim_y - 1) { Ok(false) }
+                if pos.y >= (self.dim_y - 1) || cur_grid.walls[UP] == true { Ok(false) }
                 else { Ok(true) }
             }
             _ => Err("Invalid direction provided".to_string())
@@ -384,5 +385,10 @@ pub fn coord_to_grid_wall(x: f32, y: f32) -> (i32, i32, f32) {
 const ZOOM_LEVEL: f32 = 16.0; // Number of pixels a tile occupies
 const ZL: f32 = ZOOM_LEVEL;
 
+// Shorthand for accessing the Tile walls direction more clearly
+const DOWN: usize = 0;
+const LEFT: usize = 1;
+const UP: usize = 2;
+const RIGHT: usize = 3;
 
 
