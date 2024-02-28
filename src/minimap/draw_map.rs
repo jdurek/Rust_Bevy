@@ -118,6 +118,7 @@ pub fn mouse_wall_gui(
     mut draw_line: Query<(&DragLine, &mut Transform, &mut Position, Entity)>,
     mut next_state: ResMut<NextState<MapBuildState>>,
     mut mw: ResMut<WallGrid>,
+    mut mg: ResMut<MapGrid>,
 ) {
     // Fetch camera information
     let (camera, camera_transform) = map_cam.single();
@@ -232,6 +233,13 @@ pub fn mouse_wall_gui(
                         pos.y = (((world_position.y + ZL /2.) / ZL).round() * ZL - ZL / 2.) as i32;
 
                         // Write the new wall to the map (Convert the coordinates)
+                        
+                        mg.add_walls(
+                            ((old_x + ZL /2.) / ZL) as i32,
+                            ((old_y + ZL /2.) / ZL) as i32,
+                            ((pos.x as f32 + ZL /2.) / ZL) as i32,
+                            ((pos.y as f32 + ZL /2.) / ZL) as i32,
+                        );
                         
                         // Man, flipping between int/float is fun
                         mw.add_wall(
