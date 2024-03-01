@@ -447,27 +447,31 @@ pub fn minimap_camera_vis_togle(mut commands: Commands, mut m_cam: Query<&mut Ca
 pub fn minimap_camera_style_toggle(
     mut commands: Commands, 
     mut m_cam: Query<&mut Camera, With<MinimapCamera>>,
-    mut m_mode: Query<&mut MinimapCamera>
+    mut m_mode: Query<&mut MinimapCamera>,
+    mut mg: ResMut<MapGrid>,
 ){
     let mut camera = m_cam.single_mut();
     let mut viewport = camera.viewport.as_mut().unwrap();
-    let mut mode = m_mode.single_mut().mode;
+    let mut mc = m_mode.single_mut();
     // Currently hardcoded to go in a loop - Small, Medium, Large, None, back to Small
-    match mode {
+    // TODO - make sure this works, or do I need to do m_mode.single_mut() and edit from that?
+    match mc.mode {
         MinimapMode::Small => {
-            mode = MinimapMode::Medium;
-
+            mc.mode = MinimapMode::Medium;
+            // Change zoom value - for now, it'll be hardcoded 8/16/24
+            mg.zoom = 16.;
         }
         MinimapMode::Medium => {
-            mode = MinimapMode::Large;
-
+            mc.mode = MinimapMode::Large;
+            mg.zoom = 24.;
         }
         MinimapMode::Large => {
-            mode = MinimapMode::None;
-
+            mc.mode = MinimapMode::None;
+            // Just toggle visibility of the map (Or set zoom to 0) - 
         }
         _ => {  // Case of it being None (Or an invalid mode - set to Small)
-            mode = MinimapMode::Small;
+            mc.mode = MinimapMode::Small;
+            mg.zoom = 8.;
             // Adjust the viewport size
             // Adjust the minimap multipliers (Where are these stored? In the MG resource?)
         }
