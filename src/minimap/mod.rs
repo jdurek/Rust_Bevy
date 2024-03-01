@@ -442,8 +442,22 @@ pub fn minimap_camera_vis_togle(mut commands: Commands, mut m_cam: Query<&mut Ca
 // Toggles style of the minimap (Corner, opaque overlay, fullscreen, off, etc...)
 pub fn minimap_camera_style_toggle(mut commands: Commands, mut m_cam: Query<&mut Camera, With<MinimapCamera>>){
     let mut camera = m_cam.single_mut();
-    // See what component is attached to it to determine the toggle? 
-    // Mini -> Moving Mini -> Transparent Medium -> None?
+    // See what component is attached to it to determine the toggle? Or just parse the viewport?
+    // Mini -> Moving Mini (Zoomed in) -> Transparent Medium -> None?
+    
+    // Viewport has to be unwraped if we want to access the contents
+    // let viewport = camera.viewport.unwrap();
+    // match viewport.physical_size[0] {
+    //     VIEWPORT_SMALL =>{
+
+    //     }
+    //     VIEWPORT_MEDIUM =>{
+
+    //     }
+    //     _ => {
+
+    //     }
+    // }
 }
 
 // Centralizing the const vars that components are using, mainly because some will likely become dynamic
@@ -457,3 +471,6 @@ const UP: usize = 2;
 const RIGHT: usize = 3;
 
 
+const VIEWPORT_SMALL: u32 = 128;
+const VIEWPORT_FULL: u32 = 512;
+const VIEWPORT_MEDIUM: u32 = 256;
