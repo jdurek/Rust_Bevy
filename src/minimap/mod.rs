@@ -135,6 +135,7 @@ pub struct MapGrid {
     pub tiles: Vec<Tile>,
     pub dim_x: i32,
     pub dim_y: i32,
+    pub zoom: f32,
 }
 
 impl MapGrid {
@@ -142,7 +143,8 @@ impl MapGrid {
         MapGrid {
             dim_x: width,
             dim_y: height,
-            tiles: vec![Tile {walls:[false,false,false,false],}; (width*height) as usize]
+            tiles: vec![Tile {walls:[false,false,false,false],}; (width*height) as usize],
+            zoom: ZOOM_LEVEL,
         }
     }
 
@@ -383,8 +385,10 @@ pub fn coord_to_grid_wall(x: f32, y: f32) -> (i32, i32, f32) {
 
 // This section is specifically for the Camera object that exclusively handles the minimap.
 // Debating moving this into a camera.rs or render.rs file to indicate it's part of the rendering pipelines?
-#[derive(Component)]
-pub struct MinimapCamera;
+#[derive(Component, Copy, Clone)]
+pub struct MinimapCamera{
+    mode: MinimapMode,
+}
 
 // Setup function for creating the minimap's viewport camera - defaults to top right corner
 // Only renders things that are tagged with RenderLayer layer 2 components
@@ -413,7 +417,7 @@ pub fn minimap_camera_setup(mut commands: Commands, window: Query<&Window>){
             },
             ..default()
         },
-        MinimapCamera,
+        MinimapCamera {mode: MinimapMode::Small},
         RenderLayers::layer(2),
     ));
 
@@ -423,14 +427,14 @@ pub fn minimap_camera_setup(mut commands: Commands, window: Query<&Window>){
         visibility: Visibility::Visible,
         transform: Transform {
             translation: Vec2::new(0., 0.).extend(0.0),
-            scale: Vec3::new(1280., 1280., 0.),
+            scale: Vec3::new(64., 64., 0.),
             ..default()
         },
         ..Default::default()
     }, 
     RenderLayers::layer(2),
     ));
-    println!("Viewport camera set up, along with dummy sprite");
+    // println!("Viewport camera set up, along with dummy sprite");
 }
 
 // Toggles visibility of the minimap camera
@@ -440,28 +444,39 @@ pub fn minimap_camera_vis_togle(mut commands: Commands, mut m_cam: Query<&mut Ca
 }
 
 // Toggles style of the minimap (Corner, opaque overlay, fullscreen, off, etc...)
-pub fn minimap_camera_style_toggle(mut commands: Commands, mut m_cam: Query<&mut Camera, With<MinimapCamera>>){
+pub fn minimap_camera_style_toggle(
+    mut commands: Commands, 
+    mut m_cam: Query<&mut Camera, With<MinimapCamera>>,
+    mut m_mode: Query<&mut MinimapCamera>
+){
     let mut camera = m_cam.single_mut();
-    // See what component is attached to it to determine the toggle? Or just parse the viewport?
-    // Mini -> Moving Mini (Zoomed in) -> Transparent Medium -> None?
-    
-    // Viewport has to be unwraped if we want to access the contents
-    // let viewport = camera.viewport.unwrap();
-    // match viewport.physical_size[0] {
-    //     VIEWPORT_SMALL =>{
+    let mut viewport = camera.viewport.as_mut().unwrap();
+    let mut mode = m_mode.single_mut().mode;
+    // Currently hardcoded to go in a loop - Small, Medium, Large, None, back to Small
+    match mode {
+        MinimapMode::Small => {
+            mode = MinimapMode::Medium;
 
-    //     }
-    //     VIEWPORT_MEDIUM =>{
+        }
+        MinimapMode::Medium => {
+            mode = MinimapMode::Large;
 
-    //     }
-    //     _ => {
+        }
+        MinimapMode::Large => {
+            mode = MinimapMode::None;
 
-    //     }
-    // }
+        }
+        _ => {  // Case of it being None (Or an invalid mode - set to Small)
+            mode = MinimapMode::Small;
+            // Adjust the viewport size
+            // Adjust the minimap multipliers (Where are these stored? In the MG resource?)
+        }
+    }
 }
 
 // Centralizing the const vars that components are using, mainly because some will likely become dynamic
-const ZOOM_LEVEL: f32 = 16.0; // Number of pixels a tile occupies
+// MapGrid now stores zoom - this const is for a 'default' zoom level on new map grids
+const ZOOM_LEVEL: f32 = 16.0; // Number of pixels a tile occupies by default
 const ZL: f32 = ZOOM_LEVEL;
 
 // Shorthand for accessing the Tile walls direction more clearly
@@ -474,3 +489,11 @@ const RIGHT: usize = 3;
 const VIEWPORT_SMALL: u32 = 128;
 const VIEWPORT_FULL: u32 = 512;
 const VIEWPORT_MEDIUM: u32 = 256;
+
+#[derive(Copy, Clone)]
+pub enum MinimapMode {
+    Small,
+    Medium,
+    Large,
+    None
+}

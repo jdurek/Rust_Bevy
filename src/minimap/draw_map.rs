@@ -34,8 +34,8 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
                 sprite: Sprite { color: Color::TURQUOISE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
                 visibility: Visibility::Visible,
                 transform: Transform {
-                    translation: Vec2::new(x as f32 * ZOOM_LEVEL, y as f32 * ZOOM_LEVEL).extend(0.0),
-                    scale: Vec3::new(ZOOM_LEVEL-1., ZOOM_LEVEL-1., 0.),
+                    translation: Vec2::new(x as f32 * mg.zoom, y as f32 * mg.zoom).extend(0.0),
+                    scale: Vec3::new(mg.zoom -1., mg.zoom -1., 0.),
                     ..default()
                 },
                 ..Default::default()
@@ -46,7 +46,7 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
 }
 
 // Renders only the walls, this goes on top of the map's grid (Or under it?)
-pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
+pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>, mg: Res<MapGrid>){
     // Iterating over wall-grid means we flip between horizontal and vertical walls
     for x in 0..mw.dim_x + 1 {
         for h in 0..mw.dim_x{
@@ -58,8 +58,8 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
                     sprite: Sprite { color: Color::ANTIQUE_WHITE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
                     visibility: Visibility::Visible,
                     transform: Transform {
-                        translation: Vec2::new(h as f32 * ZOOM_LEVEL, x as f32 * ZOOM_LEVEL - ZOOM_LEVEL/2.).extend(0.0),
-                        scale: Vec3::new(ZOOM_LEVEL, 1.5, 1.),
+                        translation: Vec2::new(h as f32 * mg.zoom, x as f32 * mg.zoom - mg.zoom/2.).extend(0.0),
+                        scale: Vec3::new(mg.zoom, 1.5, 1.),
                         ..default()
                     },
                     ..Default::default()
@@ -76,8 +76,8 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>){
                     sprite: Sprite { color: Color::ANTIQUE_WHITE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
                     visibility: Visibility::Visible,
                     transform: Transform {
-                        translation: Vec2::new(v as f32 * ZOOM_LEVEL - ZOOM_LEVEL/2., y as f32 * ZOOM_LEVEL).extend(0.0),
-                        scale: Vec3::new(1.5, ZOOM_LEVEL, 1.),
+                        translation: Vec2::new(v as f32 * mg.zoom - mg.zoom/2., y as f32 * mg.zoom).extend(0.0),
+                        scale: Vec3::new(1.5, mg.zoom, 1.),
                         ..default()
                     },
                     ..Default::default()
@@ -131,10 +131,10 @@ pub fn mouse_wall_gui(
         // Cursor is defined at world_position, a x/y pair
         // Match these to the size of our ZOOM_LEVEL - 
         // NOTE - true 0,0 is the center of the 1st sprite, so we shift all values over by half a sprite for 0,0 to be bottom left corner of sprite
-        let rounded_positions = (world_position.x.round() + ZOOM_LEVEL/2., world_position.y.round() + ZOOM_LEVEL/2.);
+        let rounded_positions = (world_position.x.round() + mg.zoom/2., world_position.y.round() + mg.zoom/2.);
         // These two are localized X/Y values within a pixel (0 to ZOOM_LEVEL - 1)
-        let loc_x = rounded_positions.0.rem_euclid(ZOOM_LEVEL);
-        let loc_y = rounded_positions.1.rem_euclid(ZOOM_LEVEL);
+        let loc_x = rounded_positions.0.rem_euclid(mg.zoom);
+        let loc_y = rounded_positions.1.rem_euclid(mg.zoom);
 
         let mut start_x: f32 = 0.;
         let mut start_y: f32 = 0.;
@@ -149,16 +149,16 @@ pub fn mouse_wall_gui(
         // Mouse has been pressed - spawn in 2 sprites (Line itself, and the coords)
         if mouse.just_pressed(MouseButton::Left) {
             // Try to find nearest whole coordinate within reason (EG if a pixel is 16 tiles, 4 tiles near the corner)
-            if (loc_x / ZOOM_LEVEL < 0.2 || loc_x / ZOOM_LEVEL > 0.8) &&
-               (loc_y / ZOOM_LEVEL < 0.2 || loc_y / ZOOM_LEVEL > 0.8) 
+            if (loc_x / mg.zoom < 0.2 || loc_x / mg.zoom > 0.8) &&
+               (loc_y / mg.zoom < 0.2 || loc_y / mg.zoom > 0.8) 
             {
                 println!("Close enough to a corner!");
                 // TODO - snap the start_x and _y values to the corner itself (Multiple of ZOOM_LEVEL)
                 // start_x = world_position.x;
                 // start_y = world_position.y;
 
-                start_x = ((world_position.x + ZOOM_LEVEL /2.) / ZOOM_LEVEL).round() * ZOOM_LEVEL - ZOOM_LEVEL / 2.;
-                start_y = ((world_position.y + ZOOM_LEVEL /2.) / ZOOM_LEVEL).round() * ZOOM_LEVEL - ZOOM_LEVEL / 2.;
+                start_x = ((world_position.x + mg.zoom /2.) / mg.zoom).round() * mg.zoom - mg.zoom / 2.;
+                start_y = ((world_position.y + mg.zoom /2.) / mg.zoom).round() * mg.zoom - mg.zoom / 2.;
 
                 println!("Position: {},{}", start_x, start_y);
 
@@ -218,11 +218,11 @@ pub fn mouse_wall_gui(
 
                 // Update our Transform values
                 // TODO - adjust the sensitivity of the grid-snapping
-                if dist > ZOOM_LEVEL * 0.90 && dist < ZOOM_LEVEL * 1.2 {
+                if dist > mg.zoom * 0.90 && dist < mg.zoom * 1.2 {
                     // Line is long enough that it could snap onto a valid point
                     
-                    if (loc_x / ZOOM_LEVEL < 0.1 || loc_x / ZOOM_LEVEL > 0.9) &&
-                       (loc_y / ZOOM_LEVEL < 0.1 || loc_y / ZOOM_LEVEL > 0.9) {
+                    if (loc_x / mg.zoom < 0.1 || loc_x / mg.zoom > 0.9) &&
+                       (loc_y / mg.zoom < 0.1 || loc_y / mg.zoom > 0.9) {
                         // print!("Snapping line");
 
                         let old_x = pos.x as f32;
@@ -254,15 +254,15 @@ pub fn mouse_wall_gui(
                     }
                 }
 
-                if dist < ZOOM_LEVEL {
+                if dist < mg.zoom {
                     transf.scale.x = dist;
                     transf.translation.x = (pos.x as f32 + world_position.x)/ 2. ;
                     transf.translation.y = (pos.y as f32 + world_position.y)/ 2. ;
                 } else {
-                    transf.scale.x = ZOOM_LEVEL;
+                    transf.scale.x = mg.zoom;
                     // Force the translation to remain within fixed radius
-                    transf.translation.x = pos.x as f32 + (theta.cos() * ZOOM_LEVEL)/ 2. ;
-                    transf.translation.y = pos.y as f32 + (theta.sin() * ZOOM_LEVEL)/ 2. ;
+                    transf.translation.x = pos.x as f32 + (theta.cos() * mg.zoom)/ 2. ;
+                    transf.translation.y = pos.y as f32 + (theta.sin() * mg.zoom)/ 2. ;
                 }
                 transf.rotation = Quat::from_rotation_z(theta);
                 

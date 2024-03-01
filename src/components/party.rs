@@ -47,8 +47,7 @@ pub fn party_setup(mut commands: Commands) {
 }
 
 
-const ZOOM_LEVEL: f32 = 16.0; // Number of pixels a tile occupies
-const ZL: f32 = ZOOM_LEVEL;
+
 // TODO - move this into a plugin to bundle it up neatly
 pub fn party_movement_minimap(
     // TODO - modify query with component that denotes our party specifically.
@@ -63,28 +62,28 @@ pub fn party_movement_minimap(
         // Up direction was pressed - validate and move if passed
         if mg.validate_move(&pos, 8).unwrap() {
             pos.y = pos.y + 1;
-            transform.translation.y += ZOOM_LEVEL;
+            transform.translation.y += mg.zoom;
         }
     }
     if input.any_pressed([KeyCode::A, KeyCode::Left]){
         // Left direction was pressed
         if mg.validate_move(&pos, 4).unwrap() {
             pos.x = pos.x - 1;
-            transform.translation.x -= ZOOM_LEVEL;
+            transform.translation.x -= mg.zoom;
         }
     }
     if input.any_pressed([KeyCode::S, KeyCode::Down]){
         // Down direction was pressed
         if mg.validate_move(&pos, 2).unwrap() {
             pos.y = pos.y - 1;
-            transform.translation.y -= ZOOM_LEVEL;
+            transform.translation.y -= mg.zoom;
         }
     }
     if input.any_pressed([KeyCode::D, KeyCode::Right]){
         // Right direction was pressed
         if mg.validate_move(&pos, 6).unwrap() {
             pos.x = pos.x + 1;
-            transform.translation.x += ZOOM_LEVEL;
+            transform.translation.x += mg.zoom;
         }
     }
 }
