@@ -1,3 +1,6 @@
+use bevy::core_pipeline::clear_color::ClearColorConfig;
+use bevy::render::camera::Viewport;
+use bevy::render::view::visibility::RenderLayers;
 use bevy::window::PrimaryWindow;
 use bevy::prelude::*;
 use serde::*;
@@ -360,8 +363,7 @@ pub fn build_from_file(mut commands: Commands, path: &str){
 }
 
 // Update function to replace the resource - needs a ResMut of the resources
-//| TODO - figure out what the function takes - do we want to provide a pointer to the new map?
-//| Or do we provide a path to the new map (Load from memory)?
+// Just overwrite the resource, unless we need to cache the previous one first
 
 // Helper function to convert from floating point coordinate to pixel it's part of
 pub fn coord_to_grid(x: f32, y: f32) -> (i32, i32) {
@@ -379,7 +381,70 @@ pub fn coord_to_grid_wall(x: f32, y: f32) -> (i32, i32, f32) {
 
 
 
+// This section is specifically for the Camera object that exclusively handles the minimap.
+// Debating moving this into a camera.rs or render.rs file to indicate it's part of the rendering pipelines?
+#[derive(Component)]
+pub struct MinimapCamera;
 
+// Setup function for creating the minimap's viewport camera - defaults to top right corner
+// Only renders things that are tagged with RenderLayer layer 2 components
+pub fn minimap_camera_setup(mut commands: Commands, window: Query<&Window>){
+    let window = window.single();
+
+    let phys_size = 128;
+    println!("{}, {}", window.width(), window.height());
+    let minimap_pos = UVec2::new((window.width() - phys_size as f32) as u32,0);
+
+    
+    commands.spawn((
+        Camera2dBundle {
+            camera: Camera {
+                order: 2,
+                viewport: Some(Viewport {
+                    physical_position: minimap_pos,
+                    physical_size: UVec2::new(phys_size,phys_size),
+                    ..default()
+                }),
+                ..default()
+            },
+            // V12 NOTE - In version 13, the clear_color is moved to the Camera itself
+            camera_2d: Camera2d {
+                clear_color: ClearColorConfig::None,
+            },
+            ..default()
+        },
+        MinimapCamera,
+        RenderLayers::layer(2),
+    ));
+
+    // Spawn a random sprite that takes up the full space for testing the rendering
+    commands.spawn((SpriteBundle{
+        sprite: Sprite { color: Color::TURQUOISE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
+        visibility: Visibility::Visible,
+        transform: Transform {
+            translation: Vec2::new(0., 0.).extend(0.0),
+            scale: Vec3::new(1280., 1280., 0.),
+            ..default()
+        },
+        ..Default::default()
+    }, 
+    RenderLayers::layer(2),
+    ));
+    println!("Viewport camera set up, along with dummy sprite");
+}
+
+// Toggles visibility of the minimap camera
+pub fn minimap_camera_vis_togle(mut commands: Commands, mut m_cam: Query<&mut Camera, With<MinimapCamera>>){
+    let mut camera = m_cam.single_mut();
+    camera.is_active = !camera.is_active;
+}
+
+// Toggles style of the minimap (Corner, opaque overlay, fullscreen, off, etc...)
+pub fn minimap_camera_style_toggle(mut commands: Commands, mut m_cam: Query<&mut Camera, With<MinimapCamera>>){
+    let mut camera = m_cam.single_mut();
+    // See what component is attached to it to determine the toggle? 
+    // Mini -> Moving Mini -> Transparent Medium -> None?
+}
 
 // Centralizing the const vars that components are using, mainly because some will likely become dynamic
 const ZOOM_LEVEL: f32 = 16.0; // Number of pixels a tile occupies

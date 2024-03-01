@@ -46,7 +46,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // map::build_map(commands);
 }
 
-fn minimap_setup(mut commands: Commands){
+fn main_camera_setup(mut commands: Commands){
     let mut camera = Camera2dBundle::default();
     camera.projection.scale = 0.5;
     // Camera starts pointed at 0,0 coordinate (Middle of screen)
@@ -83,7 +83,10 @@ fn main() {
     // TODO - bundle these up into a plugin? Should be doable in a sense.
     .add_state::<MapBuildState>()
     .add_state::<GameplayState>()
-    .add_systems(Startup, minimap_setup) 
+
+    // Load in the 2 cameras (1 for the game screen, 1 for the minimap, and 1 for the menu UI?)
+    .add_systems(Startup, main_camera_setup) 
+    .add_systems(Startup, minimap_camera_setup)
 
     .add_systems(OnEnter(MapBuildState::RenderMap), (despawn_system::<MapCellSprite>, despawn_system::<MapWallSprite>))
     .add_systems(Update, (draw_grid, draw_wall, render_map).run_if(in_state(MapBuildState::RenderMap)))
