@@ -40,7 +40,7 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
                 },
                 ..Default::default()
             }, 
-            MapCellSprite,));
+            MapCellSprite, RenderLayers::layer(2),));
         }
     }
 }
@@ -64,7 +64,7 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>, mg: Res<MapGrid>){
                     },
                     ..Default::default()
                 }, 
-                MapWallSprite,));
+                MapWallSprite, RenderLayers::layer(2),));
             }
         }
     }
@@ -72,7 +72,7 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>, mg: Res<MapGrid>){
         for v in 0..mw.dim_y + 1 {
             // Index will be dim_x + v + y*(x+y+1)
             if mw.walls[(mw.dim_x + v + y*(mw.dim_x+mw.dim_y+1)) as usize].pres == true {
-                commands.spawn(SpriteBundle{
+                commands.spawn((SpriteBundle{
                     sprite: Sprite { color: Color::ANTIQUE_WHITE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
                     visibility: Visibility::Visible,
                     transform: Transform {
@@ -81,7 +81,7 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>, mg: Res<MapGrid>){
                         ..default()
                     },
                     ..Default::default()
-                });
+                }, RenderLayers::layer(2),));
             }
         }
     }

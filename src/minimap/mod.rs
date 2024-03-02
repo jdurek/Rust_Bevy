@@ -426,7 +426,7 @@ pub fn minimap_camera_setup(mut commands: Commands, window: Query<&Window>){
         sprite: Sprite { color: Color::TURQUOISE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
         visibility: Visibility::Visible,
         transform: Transform {
-            translation: Vec2::new(0., 0.).extend(0.0),
+            translation: Vec2::new(-32., -32.).extend(0.0),
             scale: Vec3::new(64., 64., 0.),
             ..default()
         },
