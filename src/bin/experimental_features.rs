@@ -97,5 +97,8 @@ fn main() {
     // Loads in 'movable player' onto the map (Make use of the coordinate system), and sets up the 'exploring' state loop
     .add_systems(OnEnter(GameplayState::Exploration), party_setup)
     .add_systems(Update, party_movement_minimap.run_if(in_state(GameplayState::Exploration)))
+    .add_systems(Update, minimap_camera_style_toggle.run_if(in_state(GameplayState::Exploration)))
+
+
     .run();
 }

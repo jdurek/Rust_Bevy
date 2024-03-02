@@ -426,6 +426,19 @@ pub fn minimap_camera_setup(mut commands: Commands, window: Query<&Window>){
         sprite: Sprite { color: Color::TURQUOISE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
         visibility: Visibility::Visible,
         transform: Transform {
+            translation: Vec2::new(0., 0.).extend(0.0),
+            scale: Vec3::new(64., 64., 0.),
+            ..default()
+        },
+        ..Default::default()
+    }, 
+    RenderLayers::layer(2),
+    ));
+
+    commands.spawn((SpriteBundle{
+        sprite: Sprite { color: Color::ORANGE_RED, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
+        visibility: Visibility::Visible,
+        transform: Transform {
             translation: Vec2::new(-32., -32.).extend(0.0),
             scale: Vec3::new(64., 64., 0.),
             ..default()
@@ -452,7 +465,7 @@ pub fn minimap_camera_style_toggle(
     input: Res<Input<KeyCode>>,
 ){
     // Only runs if the keycode was detected
-    if input.pressed(KeyCode::M){
+    if input.just_pressed(KeyCode::M){
         let window = window.single();
         let mut camera = m_cam.single_mut();
         let viewport = camera.viewport.as_mut().unwrap();
