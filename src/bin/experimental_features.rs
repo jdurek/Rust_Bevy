@@ -91,6 +91,9 @@ fn main() {
     .add_systems(OnEnter(MapBuildState::RenderMap), (despawn_system::<MapCellSprite>, despawn_system::<MapWallSprite>))
     .add_systems(Update, (draw_grid, draw_wall, render_map).run_if(in_state(MapBuildState::RenderMap)))
     
+    // The systems here should all share the commonality of "Window resize" or similar options
+    .add_systems(Update, (minimap_camera_win_resize))
+
     // Loads in 'movable player' onto the map (Make use of the coordinate system), and sets up the 'exploring' state loop
     .add_systems(OnEnter(GameplayState::Exploration), party_setup)
     .add_systems(Update, party_movement_minimap.run_if(in_state(GameplayState::Exploration)))

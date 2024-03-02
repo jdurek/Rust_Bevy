@@ -40,7 +40,9 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
                 },
                 ..Default::default()
             }, 
-            MapCellSprite, RenderLayers::layer(2),));
+            MapCellSprite, 
+            // RenderLayers::layer(2),
+            ));
         }
     }
 }
@@ -64,7 +66,9 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>, mg: Res<MapGrid>){
                     },
                     ..Default::default()
                 }, 
-                MapWallSprite, RenderLayers::layer(2),));
+                MapWallSprite, 
+                // RenderLayers::layer(2),
+                ));
             }
         }
     }
@@ -81,7 +85,9 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>, mg: Res<MapGrid>){
                         ..default()
                     },
                     ..Default::default()
-                }, RenderLayers::layer(2),));
+                }, 
+                // RenderLayers::layer(2),
+                ));
             }
         }
     }

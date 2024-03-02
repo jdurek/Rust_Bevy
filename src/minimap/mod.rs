@@ -1,7 +1,7 @@
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::render::camera::Viewport;
 use bevy::render::view::visibility::RenderLayers;
-use bevy::window::PrimaryWindow;
+use bevy::window::*;
 use bevy::prelude::*;
 use serde::*;
 use std::fs::*;
@@ -475,6 +475,16 @@ pub fn minimap_camera_style_toggle(
             // Adjust the viewport size
             // Adjust the minimap multipliers (Where are these stored? In the MG resource?)
         }
+    }
+}
+
+// Handles keeping the minimap glued to top right corner on window resizes
+pub fn minimap_camera_win_resize(mut events: EventReader<WindowResized>, mut m_cam: Query<&mut Camera, With<MinimapCamera>>){
+    for event in events.read() {
+        let mut camera = m_cam.single_mut();
+        
+        let phys_size = camera.viewport.as_mut().unwrap().physical_size[0];
+        camera.viewport.as_mut().unwrap().physical_position = UVec2::new((event.width - phys_size as f32) as u32,0);
     }
 }
 
