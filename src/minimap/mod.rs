@@ -395,7 +395,7 @@ pub struct MinimapCamera{
 pub fn minimap_camera_setup(mut commands: Commands, window: Query<&Window>){
     let window = window.single();
 
-    let phys_size = 128;
+    let phys_size = VIEWPORT_SMALL;
     println!("{}, {}", window.width(), window.height());
     let minimap_pos = UVec2::new((window.width() - phys_size as f32) as u32,0);
 
@@ -423,11 +423,11 @@ pub fn minimap_camera_setup(mut commands: Commands, window: Query<&Window>){
 
     // Spawn a random sprite that takes up the full space for testing the rendering
     commands.spawn((SpriteBundle{
-        sprite: Sprite { color: Color::TURQUOISE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
+        sprite: Sprite { color: Color::ORANGE_RED, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
         visibility: Visibility::Visible,
         transform: Transform {
-            translation: Vec2::new(0., 0.).extend(0.0),
-            scale: Vec3::new(64., 64., 0.),
+            translation: Vec2::new(0., -66.).extend(0.0),
+            scale: Vec3::new(132., 2., 0.),
             ..default()
         },
         ..Default::default()
@@ -439,8 +439,8 @@ pub fn minimap_camera_setup(mut commands: Commands, window: Query<&Window>){
         sprite: Sprite { color: Color::ORANGE_RED, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
         visibility: Visibility::Visible,
         transform: Transform {
-            translation: Vec2::new(-32., -32.).extend(0.0),
-            scale: Vec3::new(64., 64., 0.),
+            translation: Vec2::new(-66., 0.).extend(0.0),
+            scale: Vec3::new(2., 132., 0.),
             ..default()
         },
         ..Default::default()
@@ -486,7 +486,7 @@ pub fn minimap_camera_style_toggle(
                 mg.zoom = 24.;
                 viewport.physical_size = UVec2::new(VIEWPORT_FULL, VIEWPORT_FULL);
                 viewport.physical_position = UVec2::new(window.width() as u32 - VIEWPORT_FULL , 0);
-
+                // Hide the 2 'frame' sprites we've loaded in
             }
             MinimapMode::Large => {
                 mc.mode = MinimapMode::None;
@@ -524,10 +524,10 @@ const LEFT: usize = 1;
 const UP: usize = 2;
 const RIGHT: usize = 3;
 
-
-const VIEWPORT_SMALL: u32 = 128;
+// Viewport is 128, 256, and 512 - the extra buffer of 4 is for the 'frame' on small/medium
+const VIEWPORT_SMALL: u32 = 132;
 const VIEWPORT_FULL: u32 = 512;
-const VIEWPORT_MEDIUM: u32 = 256;
+const VIEWPORT_MEDIUM: u32 = 260;
 
 #[derive(Copy, Clone)]
 pub enum MinimapMode {

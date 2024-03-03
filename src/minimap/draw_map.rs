@@ -25,6 +25,8 @@ pub struct SelectedOption;
 
 // Renders only the grid
 pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
+    let bl_x_shift = mg.dim_x as f32 * mg.zoom / 2. - mg.zoom/2.;
+    let bl_y_shift = mg.dim_y as f32 * mg.zoom / 2. - mg.zoom/2.;
     for y in 0..mg.dim_y {
         for x in 0..mg.dim_x {
             let index = coord_to_grid(x as f32, y as f32);
@@ -34,14 +36,14 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
                 sprite: Sprite { color: Color::TURQUOISE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
                 visibility: Visibility::Visible,
                 transform: Transform {
-                    translation: Vec2::new(x as f32 * mg.zoom, y as f32 * mg.zoom).extend(0.0),
+                    translation: Vec2::new(x as f32 * mg.zoom - bl_x_shift, y as f32 * mg.zoom - bl_y_shift).extend(0.0),
                     scale: Vec3::new(mg.zoom -1., mg.zoom -1., 0.),
                     ..default()
                 },
                 ..Default::default()
             }, 
             MapCellSprite, 
-            // RenderLayers::layer(2),
+            RenderLayers::layer(2),
             ));
         }
     }
@@ -49,6 +51,8 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
 
 // Renders only the walls, this goes on top of the map's grid (Or under it?)
 pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>, mg: Res<MapGrid>){
+    let bl_x_shift = mg.dim_x as f32 * mg.zoom / 2. - mg.zoom/2.;
+    let bl_y_shift = mg.dim_y as f32 * mg.zoom / 2. - mg.zoom/2.;
     // Iterating over wall-grid means we flip between horizontal and vertical walls
     for x in 0..mw.dim_x + 1 {
         for h in 0..mw.dim_x{
@@ -60,14 +64,14 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>, mg: Res<MapGrid>){
                     sprite: Sprite { color: Color::ANTIQUE_WHITE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
                     visibility: Visibility::Visible,
                     transform: Transform {
-                        translation: Vec2::new(h as f32 * mg.zoom, x as f32 * mg.zoom - mg.zoom/2.).extend(0.0),
+                        translation: Vec2::new(h as f32 * mg.zoom - bl_x_shift, x as f32 * mg.zoom - mg.zoom/2. - bl_y_shift).extend(0.0),
                         scale: Vec3::new(mg.zoom, 1.5, 1.),
                         ..default()
                     },
                     ..Default::default()
                 }, 
                 MapWallSprite, 
-                // RenderLayers::layer(2),
+                RenderLayers::layer(2),
                 ));
             }
         }
@@ -80,13 +84,13 @@ pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>, mg: Res<MapGrid>){
                     sprite: Sprite { color: Color::ANTIQUE_WHITE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
                     visibility: Visibility::Visible,
                     transform: Transform {
-                        translation: Vec2::new(v as f32 * mg.zoom - mg.zoom/2., y as f32 * mg.zoom).extend(0.0),
+                        translation: Vec2::new(v as f32 * mg.zoom - mg.zoom/2. - bl_x_shift, y as f32 * mg.zoom - bl_y_shift).extend(0.0),
                         scale: Vec3::new(1.5, mg.zoom, 1.),
                         ..default()
                     },
                     ..Default::default()
                 }, 
-                // RenderLayers::layer(2),
+                RenderLayers::layer(2),
                 ));
             }
         }
