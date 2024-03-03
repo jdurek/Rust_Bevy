@@ -25,8 +25,10 @@ pub struct SelectedOption;
 
 // Renders only the grid
 pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
-    let bl_x_shift = mg.dim_x as f32 * mg.zoom / 2. - mg.zoom/2.;
-    let bl_y_shift = mg.dim_y as f32 * mg.zoom / 2. - mg.zoom/2.;
+    // TODO - change the shifts to account for movement of the map - this assumes 0,0 is always bottom left
+    // For now - I've added mg.zoom * 0 at the end - just apply the coordinate shift (X/Y-specific to it (new resource?))
+    let bl_x_shift = mg.dim_x as f32 * mg.zoom / 2. - mg.zoom/2. + mg.zoom * 0.;
+    let bl_y_shift = mg.dim_y as f32 * mg.zoom / 2. - mg.zoom/2. + mg.zoom * 0.;
     for y in 0..mg.dim_y {
         for x in 0..mg.dim_x {
             let index = coord_to_grid(x as f32, y as f32);
@@ -51,8 +53,8 @@ pub fn draw_grid(mut commands: Commands, mg: Res<MapGrid>) {
 
 // Renders only the walls, this goes on top of the map's grid (Or under it?)
 pub fn draw_wall(mut commands: Commands, mw: Res<WallGrid>, mg: Res<MapGrid>){
-    let bl_x_shift = mg.dim_x as f32 * mg.zoom / 2. - mg.zoom/2.;
-    let bl_y_shift = mg.dim_y as f32 * mg.zoom / 2. - mg.zoom/2.;
+    let bl_x_shift = mg.dim_x as f32 * mg.zoom / 2. - mg.zoom/2. + mg.zoom * 0.;
+    let bl_y_shift = mg.dim_y as f32 * mg.zoom / 2. - mg.zoom/2. + mg.zoom * 0.;
     // Iterating over wall-grid means we flip between horizontal and vertical walls
     for x in 0..mw.dim_x + 1 {
         for h in 0..mw.dim_x{
