@@ -12,6 +12,7 @@ pub mod draw_map;
 pub use draw_map::*;
 pub mod mb_menu;
 pub use mb_menu::*;
+pub mod tile_component;
 
 use crate::components::Position;
 
@@ -385,9 +386,12 @@ pub fn coord_to_grid_wall(x: f32, y: f32) -> (i32, i32, f32) {
 
 // This section is specifically for the Camera object that exclusively handles the minimap.
 // Debating moving this into a camera.rs or render.rs file to indicate it's part of the rendering pipelines?
+// Can treat this like a resource in a sense (Only 1 will exist)
 #[derive(Component, Copy, Clone)]
 pub struct MinimapCamera{
     mode: MinimapMode,
+    visibility: bool,
+    opacity: f32, // Range from 0 to 100
 }
 
 // Setup function for creating the minimap's viewport camera - defaults to top right corner
@@ -417,7 +421,7 @@ pub fn minimap_camera_setup(mut commands: Commands, window: Query<&Window>){
             },
             ..default()
         },
-        MinimapCamera {mode: MinimapMode::Small},
+        MinimapCamera {mode: MinimapMode::Small, visibility:true, opacity:100.},
         RenderLayers::layer(2),
     ));
 
@@ -535,4 +539,12 @@ pub enum MinimapMode {
     Medium,
     Large,
     None
+}
+
+#[derive(Copy, Clone)]
+pub enum MinimapLoc {
+    TopLeft,
+    TopRight,
+    Center,
+    // Custom, // TODO - I think it'd be better to have this be a field rather than enums, due to how custom would behave? 
 }
