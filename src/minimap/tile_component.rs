@@ -17,7 +17,7 @@ pub struct TileEvent;
 
 #[derive(Component)]
 pub struct TransitionTile {
-    pub dest: String,  // Filepath to the destination map
+    pub dest: String,  // Filepath or index to the destination map
     pub loc: Position, // Location on the destination map to be spawned at
 }
 
@@ -43,3 +43,5 @@ impl EventTile{
         
     }
 }
+
+

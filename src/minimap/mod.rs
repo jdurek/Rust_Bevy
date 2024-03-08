@@ -13,6 +13,8 @@ pub use draw_map::*;
 pub mod mb_menu;
 pub use mb_menu::*;
 pub mod tile_component;
+pub mod mb_map_builder;
+pub use mb_map_builder::*;
 
 use crate::components::Position;
 
