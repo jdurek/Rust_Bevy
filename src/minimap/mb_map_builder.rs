@@ -190,6 +190,8 @@ pub fn mouse_wall_gui(
                 (loc_y / mg.zoom < 0.2) || (loc_y / mg.zoom > 0.8)
             {
                 println!("{}, {}", loc_x, loc_y);
+
+                // TODO - fix this IF check, since we always fail it right now?
                 // Location is close enough to a valid line - check if we're near a corner
                 if  (loc_x / mg.zoom > 0.05 || loc_x / mg.zoom < 0.95) &&
                     (loc_y / mg.zoom > 0.05 || loc_y / mg.zoom < 0.95)
@@ -197,6 +199,7 @@ pub fn mouse_wall_gui(
                     // We are too close to a corner to make a decision on the line - inform the user?
                     return;
                 }
+                // TODO - fix the start_x and start_y values, seems like I'm having trouble with the rounding
                 // Approximate our line endpoints from the closest X/Y value - 4 possible outcomes
                 start_x = ((world_position.x + mg.zoom /2.) / mg.zoom).round() * mg.zoom - mg.zoom / 2.;
                 start_y = ((world_position.y + mg.zoom /2.) / mg.zoom).round() * mg.zoom - mg.zoom / 2.;
@@ -205,8 +208,8 @@ pub fn mouse_wall_gui(
                 let mut x2 = 0;
                 let mut y2 = 0;
 
-                
-                
+                // Check the 4 cases - Y < .2, wall is on X axis, X < .2, wall on Y axis, Y > .8, wall on X axis, X > .8, wall on Y axis
+                // Need to make it clearer which wall is involved based on the coordinates we got.
                 if loc_x / mg.zoom < 0.2 && (loc_x / mg.zoom < loc_y / mg.zoom){
                     x1 = start_x.floor() as i32;
                     x2 = start_x.floor() as i32;
