@@ -9,6 +9,7 @@ New Binary File
         Hot-testing map (Load the map in game engine)
 */
 
+use bevy::render::view::RenderLayers;
 use bevy_ecs_ldtk::prelude::*;
 
 
@@ -34,11 +35,12 @@ struct GUICamera;
 fn minimap_setup(mut commands: Commands){
     let mut camera = Camera2dBundle::default();
     camera.projection.scale = 0.5;
+    
     // Camera starts pointed at 0,0 coordinate (Middle of screen)
     // camera.transform.translation.x += 1280.0 / 4.0;
     // camera.transform.translation.y += 720.0 / 4.0;
     
-    commands.spawn((camera, MainCamera));
+    commands.spawn((camera, MainCamera, RenderLayers::from_layers(&[0, 2])));
 
     bevy_roguelike::minimap::build_init(commands);
 }

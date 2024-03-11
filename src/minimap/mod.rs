@@ -128,7 +128,7 @@ impl WallGrid {
         }
         else {
             // Wall index was invalid (Not within the bounds of the map)
-            // Don't display wall
+            
         }
     }
 }
@@ -268,9 +268,6 @@ impl MapGrid {
                         self.tiles[grids[1] as usize].walls[LEFT] = true;
                     }
                 }
-                // (0,1) => {      // Downard - left cell, right cell
-
-                // }
                 _ => { } // Blank, since we've already handled it
             }
 
@@ -283,7 +280,43 @@ impl MapGrid {
 
 
     // Given a line of 2 points, remove 'walls' from the relevant grid entries - just reuse add_walls code above
-    // pub fn remove_walls(&mut self, x1:i32, y1:i32, x2:i32, y2:i32){};
+    pub fn remove_walls(&mut self, x1:i32, y1:i32, x2:i32, y2:i32){
+        println!("Removing walls from minimap...");
+        if let Ok(grids) = self.grid_index(x1, y1, x2, y2){
+            // Coordinate validation completed, update 
+            let x_diff = x1 - x2;
+            let y_diff = y1 - y2;
+            // println!("{}{}, {}{}",x_diff, y_diff, grids[0], grids[1]);
+            
+            match (x_diff, y_diff) {
+                (-1, 0) | (1,0) => {    // Horizontal wall - bottom cell/top cell format
+                    if grids[0] != -1 {
+                        // Bottom cell is valid, update 'Top Wall'
+                        self.tiles[grids[0] as usize].walls[UP] = false;
+                    }
+                    if grids[1] != -1 {
+                        // Top cell is valid, update 'Bottom Wall'
+                        self.tiles[grids[1] as usize].walls[DOWN] = false;
+                    }
+                }, 
+                (0, -1) | (0, 1) => {    // Vertical wall - left cell/right cell format
+                    if grids[0] != -1 {
+                        // Left cell is valid, update 'Right Wall'
+                        self.tiles[grids[0] as usize].walls[RIGHT] = false;
+                    }
+                    if grids[1] != -1 {
+                        // Right cell is valid, update 'Left Wall'
+                        self.tiles[grids[1] as usize].walls[LEFT] = false;
+                    }
+                }
+                _ => { } // Should never enter this branch
+            }
+
+        }
+        else {
+            // Error handling for some issue with the walls provided
+        }
+    }
 
     // Validate if a 'movement' is possible given a coordinate and direction
     pub fn validate_move(&self, pos: &Position, dir: i32) -> Result<bool, String> {

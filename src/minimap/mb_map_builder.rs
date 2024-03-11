@@ -1,6 +1,6 @@
 // Contains the main logic needed for mouse interactivity on the MapBuilder's GUI
 
-use bevy::prelude::*;
+use bevy::{math::vec2, prelude::*};
 use bevy::ecs::world;
 use bracket_lib::color::BLACK;
 
@@ -30,12 +30,20 @@ pub fn mouse_wall_gui(
     {
         // Cursor is defined at world_position, a x/y pair
         // Match these to the size of our ZOOM_LEVEL - 
-        // NOTE - true 0,0 is the center of the 1st sprite, so we shift all values over by half a sprite for 0,0 to be bottom left corner of sprite
+        // NOTE - I recently broke this position when making the 'minimap' shift on the map rendering
+        // The new 0,0 is now shifted over by the zoom level (this was so 'bottom left' of the viewport was 0,0)
+        // For now, shift it over by these - 
+        let bl_x_shift = mg.dim_x as f32 * mg.zoom / 2. - mg.zoom/2. + mg.zoom * 0.;
+        let bl_y_shift = mg.dim_y as f32 * mg.zoom / 2. - mg.zoom/2. + mg.zoom * 0.;
+
+        let world_position = vec2(world_position.x + bl_x_shift, world_position.y + bl_y_shift);
+
         let rounded_positions = (world_position.x.round() + mg.zoom/2., world_position.y.round() + mg.zoom/2.);
         // These two are localized X/Y values within a pixel (0 to ZOOM_LEVEL - 1)
         let loc_x = rounded_positions.0.rem_euclid(mg.zoom);
         let loc_y = rounded_positions.1.rem_euclid(mg.zoom);
 
+        
         let mut start_x: f32 = 0.;
         let mut start_y: f32 = 0.;
 
@@ -87,13 +95,14 @@ pub fn mouse_wall_gui(
                     sprite: Sprite { color: Color::ANTIQUE_WHITE, custom_size: (Some(Vec2::new(1.0,1.0))), ..Default::default() },
                     visibility: Visibility::Visible,
                     transform: Transform {
-                        translation: Vec2::new(start_x.round() as f32, start_y.round() as f32).extend(5.0),
+                        translation: Vec2::new(start_x.round() - bl_x_shift as f32, start_y.round() - bl_y_shift as f32).extend(5.0),
                         scale: Vec3::new(0., 1.5, 1.),
                         rotation: Quat::from_rotation_z(0.),
                         ..default()
                     },
                     ..Default::default()
                 }, 
+                RenderLayers::layer(2),
                 DragLine,
                 Position{x:start_x as i32, y:start_y as i32, z:0},
                 ));
@@ -157,13 +166,13 @@ pub fn mouse_wall_gui(
 
                 if dist < mg.zoom {
                     transf.scale.x = dist;
-                    transf.translation.x = (pos.x as f32 + world_position.x)/ 2. ;
-                    transf.translation.y = (pos.y as f32 + world_position.y)/ 2. ;
+                    transf.translation.x = (pos.x as f32 + world_position.x)/ 2. - bl_x_shift;
+                    transf.translation.y = (pos.y as f32 + world_position.y)/ 2. - bl_y_shift;
                 } else {
                     transf.scale.x = mg.zoom;
                     // Force the translation to remain within fixed radius
-                    transf.translation.x = pos.x as f32 + (theta.cos() * mg.zoom)/ 2. ;
-                    transf.translation.y = pos.y as f32 + (theta.sin() * mg.zoom)/ 2. ;
+                    transf.translation.x = pos.x as f32 + (theta.cos() * mg.zoom)/ 2. - bl_x_shift;
+                    transf.translation.y = pos.y as f32 + (theta.sin() * mg.zoom)/ 2. - bl_y_shift;
                 }
                 transf.rotation = Quat::from_rotation_z(theta);
                 
@@ -176,31 +185,62 @@ pub fn mouse_wall_gui(
         
         // Right-click has been pressed - remove a wall if we meet conditions
         if mouse.just_pressed(MouseButton::Right) {
-            // Currently unimplemented - 
-
-            // Check to see if the mouse coordinate is within .2 of a line
-            // If more than 1 valid wall is within distance of the click, uses the closest one
-            // If a tie occurs, then it will not remove a wall. Tie has some leeway (.1) 
-
             // Currently hardcoded to accept all X/Y combinations nearish the line, except for near intersections
-            if  (loc_x / mg.zoom < 0.2 && loc_x / mg.zoom > 0.05) || 
-                (loc_x / mg.zoom > 0.8 && loc_x / mg.zoom < 0.95) ||
-                (loc_y / mg.zoom < 0.2 && loc_y / mg.zoom > 0.05) || 
-                (loc_y / mg.zoom > 0.8 && loc_y / mg.zoom < 0.95)
+            if  (loc_x / mg.zoom < 0.2) || (loc_x / mg.zoom > 0.8) ||
+                (loc_y / mg.zoom < 0.2) || (loc_y / mg.zoom > 0.8)
             {
-                // Location is close enough to a valid line, assume the line is floor, ciel depending on the axis we're on
-                // Determine if we're on X or Y axis wall (Or both)
+                println!("{}, {}", loc_x, loc_y);
+                // Location is close enough to a valid line - check if we're near a corner
+                if  (loc_x / mg.zoom > 0.05 || loc_x / mg.zoom < 0.95) &&
+                    (loc_y / mg.zoom > 0.05 || loc_y / mg.zoom < 0.95)
+                {
+                    // We are too close to a corner to make a decision on the line - inform the user?
+                    return;
+                }
+                // Approximate our line endpoints from the closest X/Y value - 4 possible outcomes
+                start_x = ((world_position.x + mg.zoom /2.) / mg.zoom).round() * mg.zoom - mg.zoom / 2.;
+                start_y = ((world_position.y + mg.zoom /2.) / mg.zoom).round() * mg.zoom - mg.zoom / 2.;
+                let mut x1 = 0;
+                let mut y1= 0;
+                let mut x2 = 0;
+                let mut y2 = 0;
 
                 
-
+                
+                if loc_x / mg.zoom < 0.2 && (loc_x / mg.zoom < loc_y / mg.zoom){
+                    x1 = start_x.floor() as i32;
+                    x2 = start_x.floor() as i32;
+                    y1 = start_y.floor() as i32;
+                    y2 = start_y.ceil() as i32;
+                }
+                else if loc_x / mg.zoom > 0.8 && (loc_x / mg.zoom > loc_y / mg.zoom){
+                    x1 = start_x.ceil() as i32;
+                    x2 = start_x.ceil() as i32;
+                    y1 = start_y.floor() as i32;
+                    y2 = start_y.ceil() as i32;
+                }
+                else if loc_y / mg.zoom < 0.2 && (loc_y / mg.zoom < loc_x / mg.zoom){
+                    x1 = start_x.floor() as i32;
+                    x2 = start_x.ceil() as i32;
+                    y1 = start_y.floor() as i32;
+                    y2 = start_y.floor() as i32;
+                }
+                else if loc_y / mg.zoom > 0.8 && (loc_y / mg.zoom > loc_x / mg.zoom){
+                    x1 = start_x.floor() as i32;
+                    x2 = start_x.ceil() as i32;
+                    y1 = start_y.ceil() as i32;
+                    y2 = start_y.ceil() as i32;
+                }
+                mg.remove_walls(x1, y1, x2, y2);
+                mw.remove_wall(x1, y1, x2, y2);
             }
-
             
         }
 
     }   
 
-    // Handle despawning the line entity - 
+
+    // Handle despawning the line entity - this is separate since we don't care about coordinates here
     if mouse.just_released(MouseButton::Left) {
         // Clean up the display 
         for a in draw_line.iter(){
