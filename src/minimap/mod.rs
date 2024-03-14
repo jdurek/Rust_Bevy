@@ -281,7 +281,7 @@ impl MapGrid {
 
     // Given a line of 2 points, remove 'walls' from the relevant grid entries - just reuse add_walls code above
     pub fn remove_walls(&mut self, x1:i32, y1:i32, x2:i32, y2:i32){
-        println!("Removing walls from minimap...");
+        println!("Removing walls from minimap... ({},{}), ({},{})", x1, y1, x2, y2);
         if let Ok(grids) = self.grid_index(x1, y1, x2, y2){
             // Coordinate validation completed, update 
             let x_diff = x1 - x2;
@@ -315,6 +315,7 @@ impl MapGrid {
         }
         else {
             // Error handling for some issue with the walls provided
+            println!("Unable to remove, failed grid_index check");
         }
     }
 

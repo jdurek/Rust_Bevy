@@ -186,6 +186,7 @@ pub fn mouse_wall_gui(
         // Right-click has been pressed - remove a wall if we meet conditions
         if mouse.just_pressed(MouseButton::Right) {
             // Currently hardcoded to accept all X/Y combinations nearish the line, except for near intersections
+            
             if  (loc_x / mg.zoom < 0.2) || (loc_x / mg.zoom > 0.8) ||
                 (loc_y / mg.zoom < 0.2) || (loc_y / mg.zoom > 0.8)
             {
@@ -193,12 +194,12 @@ pub fn mouse_wall_gui(
 
                 // TODO - fix this IF check, since we always fail it right now?
                 // Location is close enough to a valid line - check if we're near a corner
-                if  (loc_x / mg.zoom > 0.05 || loc_x / mg.zoom < 0.95) &&
-                    (loc_y / mg.zoom > 0.05 || loc_y / mg.zoom < 0.95)
-                {
-                    // We are too close to a corner to make a decision on the line - inform the user?
-                    return;
-                }
+                // if  (loc_x / mg.zoom > 0.05 || loc_x / mg.zoom < 0.95) &&
+                //     (loc_y / mg.zoom > 0.05 || loc_y / mg.zoom < 0.95)
+                // {
+                //     // We are too close to a corner to make a decision on the line - inform the user?
+                //     return;
+                // }
                 // TODO - fix the start_x and start_y values, seems like I'm having trouble with the rounding
                 // Approximate our line endpoints from the closest X/Y value - 4 possible outcomes
                 start_x = ((world_position.x + mg.zoom /2.) / mg.zoom).round() * mg.zoom - mg.zoom / 2.;
@@ -211,32 +212,44 @@ pub fn mouse_wall_gui(
                 // Check the 4 cases - Y < .2, wall is on X axis, X < .2, wall on Y axis, Y > .8, wall on X axis, X > .8, wall on Y axis
                 // Need to make it clearer which wall is involved based on the coordinates we got.
                 if loc_x / mg.zoom < 0.2 && (loc_x / mg.zoom < loc_y / mg.zoom){
-                    x1 = start_x.floor() as i32;
-                    x2 = start_x.floor() as i32;
-                    y1 = start_y.floor() as i32;
-                    y2 = start_y.ceil() as i32;
+                    x1 = start_x as i32;
+                    x2 = start_x as i32;
+                    y1 = start_y as i32;
+                    y2 = (start_y + mg.zoom) as i32;
                 }
                 else if loc_x / mg.zoom > 0.8 && (loc_x / mg.zoom > loc_y / mg.zoom){
-                    x1 = start_x.ceil() as i32;
-                    x2 = start_x.ceil() as i32;
-                    y1 = start_y.floor() as i32;
-                    y2 = start_y.ceil() as i32;
+                    x1 = (start_x  + mg.zoom) as i32;
+                    x2 = (start_x  + mg.zoom) as i32;
+                    y1 = start_y as i32;
+                    y2 = (start_y  + mg.zoom)as i32;
                 }
                 else if loc_y / mg.zoom < 0.2 && (loc_y / mg.zoom < loc_x / mg.zoom){
-                    x1 = start_x.floor() as i32;
-                    x2 = start_x.ceil() as i32;
-                    y1 = start_y.floor() as i32;
-                    y2 = start_y.floor() as i32;
+                    x1 = start_x as i32;
+                    x2 = (start_x + mg.zoom) as i32;
+                    y1 = start_y as i32;
+                    y2 = start_y as i32;
                 }
                 else if loc_y / mg.zoom > 0.8 && (loc_y / mg.zoom > loc_x / mg.zoom){
-                    x1 = start_x.floor() as i32;
-                    x2 = start_x.ceil() as i32;
-                    y1 = start_y.ceil() as i32;
-                    y2 = start_y.ceil() as i32;
+                    x1 = start_x as i32;
+                    x2 = (start_x  + mg.zoom) as i32;
+                    y1 = (start_y + mg.zoom) as i32;
+                    y2 = (start_y + mg.zoom) as i32;
                 }
-                mg.remove_walls(x1, y1, x2, y2);
-                mw.remove_wall(x1, y1, x2, y2);
+
+                // Had to do this so I could use it in the function call computation below
+                let zoom = mg.zoom;
+                mg.remove_walls(
+                    ((x1 as f32 + zoom /2.) / zoom) as i32,
+                    ((y1 as f32 + zoom /2.) / zoom) as i32, 
+                    ((x2 as f32 + zoom /2.) / zoom) as i32, 
+                    ((y2 as f32 + zoom /2.) / zoom) as i32);
+                mw.remove_wall(
+                    ((x1 as f32 + zoom /2.) / zoom) as i32,
+                    ((y1 as f32 + zoom /2.) / zoom) as i32, 
+                    ((x2 as f32 + zoom /2.) / zoom) as i32, 
+                    ((y2 as f32 + zoom /2.) / zoom) as i32);
             }
+            next_state.set(MapBuildState::RenderMap);
             
         }
 
