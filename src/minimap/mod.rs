@@ -15,6 +15,7 @@ pub use mb_menu::*;
 pub mod tile_component;
 pub mod mb_map_builder;
 pub use mb_map_builder::*;
+pub mod terrain_gen;
 
 use crate::components::Position;
 
